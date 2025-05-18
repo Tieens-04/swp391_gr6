@@ -14,8 +14,8 @@ yarn-error.log*
 *.env.production.local
 
 # Java (Spring Boot backend)
-resources/application.properties
-resources/application.yml
+*.properties
+*.yml
 target/
 *.class
 *.jar
