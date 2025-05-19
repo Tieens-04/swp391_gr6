@@ -10,7 +10,6 @@ const schema = yup.object().shape({
         .string()
         .required("Vui lòng nhập họ tên")
         .matches(/^[a-zA-Z\s]+$/, "Họ tên không được chứa số hoặc ký tự đặc biệt"),
-    email: yup.string().required("Vui lòng nhập email").email("Email không hợp lệ"),
     password: yup
         .string()
         .required("Vui lòng nhập mật khẩu")
@@ -23,28 +22,30 @@ const schema = yup.object().shape({
         .oneOf([yup.ref("password"), null], "Mật khẩu xác nhận không khớp"),
 });
 
-function RegisterForm() {
+function UserRegisterForm() {
     const {
         register,
         handleSubmit,
         formState: { errors },
-        reset,
     } = useForm({
         resolver: yupResolver(schema),
     });
+
+    const email = localStorage.getItem("registerEmail");
 
     const onSubmit = async (data) => {
         try {
             const res = await registerUser({
                 fullName: data.fullname,
-                email: data.email,
+                email: email,
                 passwordHash: data.password,
                 role: "applicant",
             });
 
             if (res.status === 201) {
                 toast.success("Đăng ký thành công!");
-                reset();
+                localStorage.removeItem("registerEmail");
+                window.location.href = "/login";
             } else {
                 toast.error("Đăng ký thất bại!");
             }
@@ -62,12 +63,6 @@ function RegisterForm() {
                     <label>Họ tên:</label>
                     <input {...register("fullname")} />
                     <p style={{ color: "red" }}>{errors.fullname?.message}</p>
-                </div>
-
-                <div>
-                    <label>Email:</label>
-                    <input type="email" {...register("email")} />
-                    <p style={{ color: "red" }}>{errors.email?.message}</p>
                 </div>
 
                 <div>
@@ -91,4 +86,4 @@ function RegisterForm() {
     );
 }
 
-export default RegisterForm;
+export default UserRegisterForm;

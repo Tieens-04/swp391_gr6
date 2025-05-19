@@ -1,3 +1,10 @@
+CREATE TABLE verification_tokens (
+    email VARCHAR(255),
+    otp_code CHAR(6),
+    expires_at TIMESTAMP,
+	PRIMARY KEY(email)
+);
+
 CREATE TABLE `users` (
 	`user_id` VARCHAR(15) NOT NULL UNIQUE,
 	`full_name` VARCHAR(127),

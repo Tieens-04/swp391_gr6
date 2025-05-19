@@ -3,16 +3,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { login as loginUser } from "../services/authApi";
+import { sendOtp } from "../services/authApi";
 
 const schema = yup.object().shape({
     email: yup.string().required("Vui lòng nhập email").email("Email không hợp lệ"),
-    password: yup
-        .string()
-        .required("Vui lòng nhập mật khẩu"),
 });
 
-function LoginForm() {
+function UserRegister() {
     const {
         register,
         handleSubmit,
@@ -23,18 +20,16 @@ function LoginForm() {
 
     const onSubmit = async (data) => {
         try {
-            const res = await loginUser({
+            const res = await sendOtp({
                 email: data.email,
-                password: data.password,
             });
 
             if (res.status === 200) {
-                const { accessToken } = res.data;
-                localStorage.setItem("accessToken", accessToken);
-                toast.success("Đăng nhập thành công!");
-                window.location.href = "/";
+                toast.success("Gửi mã OTP thành công!");
+                localStorage.setItem("registerEmail", data.email);
+                window.location.href = "/verify-otp";
             } else {
-                toast.error("Đăng nhập thất bại!");
+                toast.error("Gửi mã OTP thất bại!");
             }
         } catch (error) {
             toast.error("Lỗi kết nối server!");
@@ -44,22 +39,16 @@ function LoginForm() {
 
     return (
         <div style={{ maxWidth: 400, margin: "40px auto" }}>
-            <h2>Đăng nhập</h2>
+            <h2>Đăng ký</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     <label>Email:</label>
-                    <input {...register("email")} />
+                    <input type="email" {...register("email")} />
                     <p style={{ color: "red" }}>{errors.email?.message}</p>
                 </div>
 
-                <div>
-                    <label>Mật khẩu:</label>
-                    <input type="password" {...register("password")} />
-                    <p style={{ color: "red" }}>{errors.password?.message}</p>
-                </div>
-
                 <button type="submit" style={{ marginTop: 16 }}>
-                    Đăng nhập
+                    Gửi mã OTP
                 </button>
             </form>
             <ToastContainer />
@@ -67,4 +56,4 @@ function LoginForm() {
     );
 }
 
-export default LoginForm;
+export default UserRegister;

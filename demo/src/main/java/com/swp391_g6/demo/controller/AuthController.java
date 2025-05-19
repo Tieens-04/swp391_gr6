@@ -1,5 +1,7 @@
 package com.swp391_g6.demo.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,33 +11,58 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.swp391_g6.demo.dto.EmailRequest;
 import com.swp391_g6.demo.dto.LoginRequest;
+import com.swp391_g6.demo.dto.OtpVerificationRequest;
 import com.swp391_g6.demo.entity.User;
 import com.swp391_g6.demo.service.AuthService;
+import com.swp391_g6.demo.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     private AuthService authService;
 
-    //[POST] /api/auth/register - Đăng ký người dùng
-    @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
-        authService.createUser(user.getFullName(), user.getEmail(), user.getPasswordHash(), user.getRole());
-        System.out.println(ResponseEntity.status(HttpStatus.CREATED).body(user));
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    // [POST] /api/auth/send-otp - Gửi mã OTP đến email
+    @PostMapping("/send-otp")
+    public ResponseEntity<String> sendOtp(@RequestBody EmailRequest request) {
+        authService.sendOtp(request.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body("Mã OTP đã được gửi đến email của bạn");
     }
 
-    //[POST] /api/auth/login - Đăng nhập người dùng
+    // [POST] /api/auth/verify-otp - Xác thực mã OTP
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpVerificationRequest request) {
+        boolean isValid = authService.verifyOtp(request.getEmail(), request.getOtp());
+
+        if (!isValid) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("OTP không hợp lệ hoặc đã hết hạn");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("OTP hợp lệ. Tiếp tục đăng ký.");
+    }
+
+    // [POST] /api/auth/register - Đăng ký người dùng
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
+        authService.createUser(user.getFullName(), user.getEmail(), user.getPasswordHash(), user.getRole());
+        String jwt = jwtUtil.generateToken(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("token", jwt));
+    }
+
+    // [POST] /api/auth/login - Đăng nhập người dùng
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
         User user = authService.authenticate(request.getEmail(), request.getPassword());
         if (user != null) {
-            return ResponseEntity.ok("Login successful");
+            String jwt = jwtUtil.generateToken(user);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", jwt));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid credentials"));
         }
     }
 
