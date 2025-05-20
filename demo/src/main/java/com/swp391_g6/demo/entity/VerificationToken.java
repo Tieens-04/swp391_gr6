@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -12,21 +13,30 @@ import jakarta.persistence.Table;
 public class VerificationToken {
 
     @Id
+    @GeneratedValue
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "email")
     private String email;
 
     @Column(name = "otp_code")
     private String otp_code;
 
+    @Column(name = "task")
+    private String task;
+
     @Column(name = "expires_at")
     private Timestamp expiresAt;
+
 
     public VerificationToken() {
     }
 
-    public VerificationToken(String email, String otp_code, Timestamp expiresAt) {
+    public VerificationToken(String email, String otp_code, String task, Timestamp expiresAt) {
         this.email = email;
         this.otp_code = otp_code;
+        this.task = task;
         this.expiresAt = expiresAt;
     }
 
@@ -44,6 +54,14 @@ public class VerificationToken {
 
     public void setOtp_code(String otp_code) {
         this.otp_code = otp_code;
+    }
+
+    public String getTask() {
+        return task;
+    }
+
+    public void setTask(String task) {
+        this.task = task;
     }
 
     public Timestamp getExpiresAt() {

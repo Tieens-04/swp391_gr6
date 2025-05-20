@@ -12,7 +12,7 @@ const schema = yup.object().shape({
         .matches(/^\d{6}$/, "Mã OTP phải là 6 chữ số"),
 });
 
-function OtpVerificationForm() {
+function OtpForgotPassword() {
     const {
         register,
         handleSubmit,
@@ -24,14 +24,14 @@ function OtpVerificationForm() {
     const onSubmit = async (data) => {
         try {
             const res = await verifyOtp({
-                email: localStorage.getItem("registerEmail"),
+                email: localStorage.getItem("resetPasswordEmail"),
                 otp: data.otp,
-                task: "register",
+                task: "reset_password",
             });
 
             if (res.status === 200) {
-                toast.success("Xác thực thành công!");
-                window.location.href = "/user-register-form";
+                toast.success(res.body);
+                window.location.href = "/password-reset";
             } else {
                 toast.error("Xác thực thất bại!");
             }
@@ -60,4 +60,4 @@ function OtpVerificationForm() {
     );
 }
 
-export default OtpVerificationForm;
+export default OtpForgotPassword;

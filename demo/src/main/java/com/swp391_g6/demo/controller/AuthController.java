@@ -38,7 +38,7 @@ public class AuthController {
     // [POST] /api/auth/verify-otp - Xác thực mã OTP
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody OtpVerificationRequest request) {
-        boolean isValid = authService.verifyOtp(request.getEmail(), request.getOtp());
+        boolean isValid = authService.verifyOtp(request.getEmail(), request.getOtp(), request.getTask());
 
         if (!isValid) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("OTP không hợp lệ hoặc đã hết hạn");
@@ -64,6 +64,31 @@ public class AuthController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid credentials"));
         }
+    }
+    
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest request) {
+        authService.sendResetPasswordEmail(request.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body("Mã xác thực đã được gửi đến email của bạn");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+
+        authService.updatePassword(email, newPassword);
+        return ResponseEntity.status(HttpStatus.OK).body("Mật khẩu đã được cập nhật thành công");
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        if (token == null || !jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid token"));
+        }
+        String newToken = jwtUtil.refreshToken(token);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", newToken));
     }
 
 }

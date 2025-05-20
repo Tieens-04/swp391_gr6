@@ -3,16 +3,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { verifyOtp } from "../services/authApi";
+import { forgotPassword } from "../services/authApi";
 
 const schema = yup.object().shape({
-    otp: yup
-        .string()
-        .required("Vui lòng nhập mã OTP")
-        .matches(/^\d{6}$/, "Mã OTP phải là 6 chữ số"),
+    email: yup.string().required("Vui lòng nhập email").email("Email không hợp lệ"),
 });
 
-function OtpVerificationForm() {
+function ForgotPassword() {
     const {
         register,
         handleSubmit,
@@ -23,17 +20,16 @@ function OtpVerificationForm() {
 
     const onSubmit = async (data) => {
         try {
-            const res = await verifyOtp({
-                email: localStorage.getItem("registerEmail"),
-                otp: data.otp,
-                task: "register",
+            const res = await forgotPassword({
+                email: data.email,
             });
 
             if (res.status === 200) {
-                toast.success("Xác thực thành công!");
-                window.location.href = "/user-register-form";
+                toast.success(res.body);
+                localStorage.setItem("resetPasswordEmail", data.email);
+                window.location.href = "/otp-forgot-password";
             } else {
-                toast.error("Xác thực thất bại!");
+                toast.error("Gửi mã OTP thất bại!");
             }
         } catch (error) {
             toast.error("Lỗi kết nối server!");
@@ -46,13 +42,13 @@ function OtpVerificationForm() {
             <h2>Đăng ký</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
-                    <label>Mã OTP:</label>
-                    <input type="text" {...register("otp")} />
-                    <p style={{ color: "red" }}>{errors.otp?.message}</p>
+                    <label>Email:</label>
+                    <input type="email" {...register("email")} />
+                    <p style={{ color: "red" }}>{errors.email?.message}</p>
                 </div>
 
                 <button type="submit" style={{ marginTop: 16 }}>
-                    Xác thực
+                    Gửi mã OTP
                 </button>
             </form>
             <ToastContainer />
@@ -60,4 +56,4 @@ function OtpVerificationForm() {
     );
 }
 
-export default OtpVerificationForm;
+export default ForgotPassword;

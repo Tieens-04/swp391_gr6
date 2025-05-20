@@ -4,6 +4,7 @@ public class OtpVerificationRequest {
 
     private String email;
     private String otp;
+    private String task;
 
     public OtpVerificationRequest() {
     }
@@ -27,6 +28,14 @@ public class OtpVerificationRequest {
 
     public void setOtp(String otp) {
         this.otp = otp;
+    }
+
+    public String getTask() {
+        return task;
+    }
+
+    public void setTask(String task) {
+        this.task = task;
     }
 
 }

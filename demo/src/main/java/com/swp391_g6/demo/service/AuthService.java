@@ -35,24 +35,33 @@ public class AuthService {
 
     public void sendOtp(String email) {
         String otp = String.format("%06d", new Random().nextInt(999999));
+        String task = "register";
 
-        VerificationToken token = new VerificationToken();
-        token.setEmail(email);
-        token.setOtp_code(otp);;
-        token.setExpiresAt(Timestamp.valueOf(LocalDateTime.now().plusMinutes(5)));
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByEmailAndTask(email, task);
+
+        VerificationToken token;
+        if (optionalToken.isPresent()) {
+            token = optionalToken.get();
+            token.setOtp_code(otp);
+            token.setExpiresAt(Timestamp.valueOf(LocalDateTime.now().plusMinutes(5)));
+        } else {
+            token = new VerificationToken();
+            token.setEmail(email);
+            token.setOtp_code(otp);
+            token.setTask(task);
+            token.setExpiresAt(Timestamp.valueOf(LocalDateTime.now().plusMinutes(5)));
+        }
 
         verificationTokenRepository.save(token);
         emailUtil.sendOtpEmail(email, otp);
     }
 
-    public boolean verifyOtp(String email, String otp) {
-        Optional<VerificationToken> optionalToken = verificationTokenRepository.findById(email);
-
+    public boolean verifyOtp(String email, String otp, String task) {
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByEmailAndTask(email, task);
         if (optionalToken.isEmpty())
             return false;
 
         VerificationToken token = optionalToken.get();
-
         if (token.getExpiresAt().before(Timestamp.valueOf(LocalDateTime.now())))
             return false;
 
@@ -80,6 +89,41 @@ public class AuthService {
             return user;
         }
         return null;
+    }
+
+    public void sendResetPasswordEmail(String email) {
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        String task = "reset_password";
+
+        Optional<VerificationToken> optionalToken = verificationTokenRepository.findByEmailAndTask(email, task);
+
+        VerificationToken token;
+        if (optionalToken.isPresent()) {
+            token = optionalToken.get();
+            token.setOtp_code(otp);
+            token.setExpiresAt(Timestamp.valueOf(LocalDateTime.now().plusMinutes(5)));
+        } else {
+            token = new VerificationToken();
+            token.setEmail(email);
+            token.setOtp_code(otp);
+            token.setTask(task);
+            token.setExpiresAt(Timestamp.valueOf(LocalDateTime.now().plusMinutes(5)));
+        }
+
+        verificationTokenRepository.save(token);
+        emailUtil.sendOtpEmail(email, otp);
+    }
+
+    public void updatePassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            String password_hash = passwordEncoder.encode(newPassword);
+            user.setPasswordHash(password_hash);
+            Timestamp now = Timestamp
+                    .from(java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Bangkok")).toInstant());
+            user.setUpdatedAt(now);
+            userRepository.save(user);
+        }
     }
 
 }

@@ -15,3 +15,11 @@ export const register = async (data) => {
 export const login = async (data) => {
     return await axiosInstance.post("/auth/login", data);
 };
+
+export const forgotPassword = async (data) => {
+    return await axiosInstance.post("/auth/forgot-password", data);
+}
+
+export const resetPassword = async (data) => {
+    return await axiosInstance.post("/auth/reset-password", data);
+};

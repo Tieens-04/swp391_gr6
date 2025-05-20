@@ -46,4 +46,8 @@ public class JwtUtil {
         }
     }
 
+    public String refreshToken(String token) {
+        return null;
+    }
+
 }

@@ -19,4 +19,12 @@ public class EmailUtil {
         javaMailSender.send(message);
     }
 
+    public void sendResetPasswordEmail(String toEmail, String otp) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Xác thực đặt lại mật khẩu");
+        message.setText("Mã xác thực của bạn là: " + otp);
+        javaMailSender.send(message);
+    }
+
 }

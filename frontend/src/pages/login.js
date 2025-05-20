@@ -1,3 +1,5 @@
+import React from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -21,6 +23,9 @@ function LoginForm() {
         resolver: yupResolver(schema),
     });
 
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
     const onSubmit = async (data) => {
         try {
             const res = await loginUser({
@@ -33,12 +38,15 @@ function LoginForm() {
                 localStorage.setItem("accessToken", accessToken);
                 toast.success("Đăng nhập thành công!");
                 window.location.href = "/";
-            } else {
-                toast.error("Đăng nhập thất bại!");
             }
         } catch (error) {
-            toast.error("Lỗi kết nối server!");
-            console.error("Error:", error);
+            if (error.response && error.response.status === 401) {
+                setErrorMessage("Email hoặc mật khẩu không đúng");
+                toast.error("Đăng nhập thất bại!");
+            } else {
+                toast.error("Lỗi kết nối server!");
+                console.error("Error:", error);
+            }
         }
     };
 
@@ -46,6 +54,7 @@ function LoginForm() {
         <div style={{ maxWidth: 400, margin: "40px auto" }}>
             <h2>Đăng nhập</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
+                {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
                 <div>
                     <label>Email:</label>
                     <input {...register("email")} />
@@ -61,6 +70,9 @@ function LoginForm() {
                 <button type="submit" style={{ marginTop: 16 }}>
                     Đăng nhập
                 </button>
+                <a href="/forgot-password" style={{ display: "block", marginTop: 16 }}>
+                    Quên mật khẩu?
+                </a>
             </form>
             <ToastContainer />
         </div>
