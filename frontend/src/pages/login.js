@@ -1,17 +1,20 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { login as loginUser } from "../services/authApi";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import Header from '../component/header';
+import Footer from '../component/footer';
+import '..css/login.css';
 
 const schema = yup.object().shape({
     email: yup.string().required("Vui lòng nhập email").email("Email không hợp lệ"),
-    password: yup
-        .string()
-        .required("Vui lòng nhập mật khẩu"),
+    password: yup.string().required("Vui lòng nhập mật khẩu"),
 });
 
 function LoginForm() {
@@ -19,14 +22,15 @@ function LoginForm() {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm({
-        resolver: yupResolver(schema),
-    });
+    } = useForm({ resolver: yupResolver(schema) });
 
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const onSubmit = async (data) => {
+        setIsLoading(true);
+        setErrorMessage("");
+
         try {
             const res = await loginUser({
                 email: data.email,
@@ -45,36 +49,98 @@ function LoginForm() {
                 toast.error("Đăng nhập thất bại!");
             } else {
                 toast.error("Lỗi kết nối server!");
-                console.error("Error:", error);
+                console.error("Lỗi:", error);
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div style={{ maxWidth: 400, margin: "40px auto" }}>
-            <h2>Đăng nhập</h2>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-                <div>
-                    <label>Email:</label>
-                    <input {...register("email")} />
-                    <p style={{ color: "red" }}>{errors.email?.message}</p>
-                </div>
+        <div className="d-flex flex-column min-vh-100">
+            <Header />
+            <main className="login-container flex-grow-1">
+                <div className="container my-5">
+                    <div className="row shadow rounded overflow-hidden login-form-container">
+                        {/* Cột hình ảnh */}
+                        <div className="col-md-6 d-none d-md-block login-image-col">
+                            <img
+                                src="https://picsum.photos/600"
+                                alt="Login Visual"
+                                className="login-image"
+                            />
+                        </div>
 
-                <div>
-                    <label>Mật khẩu:</label>
-                    <input type="password" {...register("password")} />
-                    <p style={{ color: "red" }}>{errors.password?.message}</p>
-                </div>
+                        {/* Cột form */}
+                        <div className="col-md-6 bg-white login-form-col">
+                            <h3 className="text-center fw-bold login-form-title">
+                                <i className="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                            </h3>
+                            <p className="text-center text-muted login-form-subtitle">Chào mừng trở lại! Vui lòng nhập thông tin của bạn.</p>
 
-                <button type="submit" style={{ marginTop: 16 }}>
-                    Đăng nhập
-                </button>
-                <a href="/forgot-password" style={{ display: "block", marginTop: 16 }}>
-                    Quên mật khẩu?
-                </a>
-            </form>
-            <ToastContainer />
+                            {errorMessage && (
+                                <div className="alert alert-danger">{errorMessage}</div>
+                            )}
+
+                            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                                <div className="mb-3">
+                                    <label className="form-label">Email</label>
+                                    <div className="input-group">
+                                        <span className="input-group-text">
+                                            <i className="fas fa-envelope"></i>
+                                        </span>
+                                        <input
+                                            type="email"
+                                            className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                                            {...register("email")}
+                                            placeholder="Nhập email"
+                                        />
+                                        {errors.email && (
+                                            <div className="invalid-feedback">
+                                                {errors.email.message}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label">Mật khẩu</label>
+                                    <div className="input-group">
+                                        <span className="input-group-text">
+                                            <i className="fas fa-lock"></i>
+                                        </span>
+                                        <input
+                                            type="password"
+                                            className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                                            {...register("password")}
+                                            placeholder="Nhập mật khẩu"
+                                        />
+                                        {errors.password && (
+                                            <div className="invalid-feedback">
+                                                {errors.password.message}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary login-form-button"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+                                </button>
+
+                                <div className="login-form-link">
+                                    <a href="/forgot-password">Quên mật khẩu?</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <ToastContainer />
+                </div>
+            </main>
+            <Footer />
         </div>
     );
 }
