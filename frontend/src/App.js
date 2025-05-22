@@ -6,6 +6,7 @@ import LoginForm from "./pages/login";
 import ForgotPassword from "./pages/forgot-password";
 import OtpForgotPassword from "./pages/otp-forgot-password";
 import PasswordReset from "./pages/password-reset";
+import Home from "./pages/home";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-forgot-password" element={<OtpForgotPassword />} />
         <Route path="/password-reset" element={<PasswordReset />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </Router>
   );
