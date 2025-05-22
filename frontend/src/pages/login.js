@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -28,9 +29,6 @@ function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
 
     const onSubmit = async (data) => {
-        setIsLoading(true);
-        setErrorMessage("");
-
         try {
             const res = await loginUser({
                 email: data.email,
@@ -123,24 +121,14 @@ function LoginForm() {
                                     </div>
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary login-form-button"
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
-                                </button>
-
-                                <div className="login-form-link">
-                                    <a href="/forgot-password">Quên mật khẩu?</a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <ToastContainer />
-                </div>
-            </main>
-            <Footer />
+                <button type="submit" style={{ marginTop: 16 }}>
+                    Đăng nhập
+                </button>
+                <a href="/forgot-password" style={{ display: "block", marginTop: 16 }}>
+                    Quên mật khẩu?
+                </a>
+            </form>
+            <ToastContainer />
         </div>
     );
 }
