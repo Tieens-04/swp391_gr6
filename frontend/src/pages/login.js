@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -9,9 +8,9 @@ import { login as loginUser } from "../services/authApi";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import Header from '../component/header';
-import Footer from '../component/footer';
-import '..css/login.css';
+import Header from '../components/header';
+import Footer from '../components/footer';
+import '../css/Login.css';
 
 const schema = yup.object().shape({
     email: yup.string().required("Vui lòng nhập email").email("Email không hợp lệ"),
@@ -29,6 +28,9 @@ function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
 
     const onSubmit = async (data) => {
+        setIsLoading(true);
+        setErrorMessage("");
+
         try {
             const res = await loginUser({
                 email: data.email,
@@ -63,7 +65,7 @@ function LoginForm() {
                         {/* Cột hình ảnh */}
                         <div className="col-md-6 d-none d-md-block login-image-col">
                             <img
-                                src="https://picsum.photos/600"
+                                src="https://picsum.photos/800"
                                 alt="Login Visual"
                                 className="login-image"
                             />
@@ -121,14 +123,24 @@ function LoginForm() {
                                     </div>
                                 </div>
 
-                <button type="submit" style={{ marginTop: 16 }}>
-                    Đăng nhập
-                </button>
-                <a href="/forgot-password" style={{ display: "block", marginTop: 16 }}>
-                    Quên mật khẩu?
-                </a>
-            </form>
-            <ToastContainer />
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary w-100 mt-3"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+                                </button>
+
+                                <div className="text-center mt-3">
+                                    <a href="/forgot-password">Quên mật khẩu?</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <ToastContainer />
+                </div>
+            </main>
+            <Footer />
         </div>
     );
 }
