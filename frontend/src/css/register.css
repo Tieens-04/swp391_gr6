@@ -1,0 +1,43 @@
+.login-container {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.login-form-container {
+  max-width: 900px;
+  width: 100%;
+  background-color: #fff;
+}
+
+.login-image-col {
+  padding: 0;
+}
+
+.login-image {
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+}
+
+.login-form-col {
+  padding: 3rem;
+}
+
+.login-form-button {
+  width: 100%;
+}
+
+.login-form-link {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.login-form-link:hover {
+  text-decoration: underline;
+}
