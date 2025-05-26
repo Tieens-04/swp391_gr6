@@ -5,6 +5,12 @@ import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { resetPassword } from "../services/authApi";
+import Header from '../components/header';
+import Footer from '../components/footer';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import '../css/pass.css'
 
 const schema = yup.object().shape({
     password: yup
@@ -60,35 +66,74 @@ function PasswordReset() {
         }
     };
 
-    return (
-        <div style={{ maxWidth: 400, margin: "40px auto" }}>
-            <h2>Đặt lại mật khẩu</h2>
-            <p className="text-center text-muted login-form-subtitle">
-                Vui lòng nhập mật khẩu mới của bạn.
-            </p>
-            {errorMessage && (
-                <div className="alert alert-danger">{errorMessage}</div>
-            )}
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <label>Mật khẩu mới:</label>
-                    <input type="password" {...register("password")} />
-                    <p style={{ color: "red" }}>{errors.password?.message}</p>
-                </div>
+   return (
+    <div className="password-reset-container">
+      <Header />
+      
+      <div className="password-reset-content">
+        <div className="password-reset-form">
+          <h2 className="password-reset-title">Đặt lại mật khẩu</h2>
+          
+          <p className="password-reset-subtitle">
+            Vui lòng nhập mật khẩu mới cho email: <strong>{email}</strong>
+          </p>
+          
+          {errorMessage && (
+            <div className="alert alert-danger error-message">{errorMessage}</div>
+          )}
+          
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="form-group">
+              <label>Mật khẩu mới:</label>
+              <input
+                type="password"
+                className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                {...register("password")}
+                placeholder="Nhập mật khẩu mới"
+              />
+              {errors.password && (
+                <p className="invalid-feedback">{errors.password.message}</p>
+              )}
+              <small className="form-text">
+                Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ cái, số và ký tự đặc biệt
+              </small>
+            </div>
 
-                <div>
-                    <label>Xác nhận mật khẩu:</label>
-                    <input type="password" {...register("confirmPassword")} />
-                    <p style={{ color: "red" }}>{errors.confirmPassword?.message}</p>
-                </div>
+            <div className="form-group">
+              <label>Xác nhận mật khẩu:</label>
+              <input
+                type="password"
+                className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+                {...register("confirmPassword")}
+                placeholder="Nhập lại mật khẩu"
+              />
+              {errors.confirmPassword && (
+                <p className="invalid-feedback">{errors.confirmPassword.message}</p>
+              )}
+            </div>
 
-                <button type="submit" style={{ marginTop: 16 }} disabled={isLoading}>
-                    {isLoading ? "Đang đặt lại..." : "Đặt lại"}
-                </button>
-            </form>
-            <ToastContainer />
+            <button
+              type="submit"
+              className="btn btn-primary btn-reset"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <span className="spinner" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Đặt lại mật khẩu"
+              )}
+            </button>
+          </form>
         </div>
-    );
+      </div>
+      
+      <Footer />
+      <ToastContainer position="top-right" autoClose={3000} />
+    </div>
+  );
 }
 
 export default PasswordReset;

@@ -5,6 +5,12 @@ import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { register as registerUser } from "../services/authApi";
+import Header from '../components/header';
+import Footer from '../components/footer';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import '../css/register.css';
 
 const schema = yup.object().shape({
     fullname: yup
@@ -67,40 +73,80 @@ function UserRegisterForm() {
     };
 
     return (
-        <div style={{ maxWidth: 400, margin: "40px auto" }}>
-            <h2>Đăng ký</h2>
-            <p className="text-center text-muted login-form-subtitle">
-                Vui lòng điền thông tin để tạo tài khoản.
-            </p>
-            {errorMessage && (
-                <div className="alert alert-danger">{errorMessage}</div>
-            )}
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <label>Họ tên:</label>
-                    <input {...register("fullname")} />
-                    <p style={{ color: "red" }}>{errors.fullname?.message}</p>
-                </div>
+        <div className="page-container">
+            <Header />
+            <div className="register-container">
+                <div className="register-form">
+                    <h2 className="register-title">Đăng ký</h2>
+                    <p className="register-subtitle">
+                        Vui lòng điền thông tin để tạo tài khoản.
+                    </p>
 
-                <div>
-                    <label>Mật khẩu:</label>
-                    <input type="password" {...register("password")} />
-                    <p style={{ color: "red" }}>{errors.password?.message}</p>
-                </div>
+                    {errorMessage && (
+                        <div className="alert alert-danger register-error">{errorMessage}</div>
+                    )}
 
-                <div>
-                    <label>Xác nhận mật khẩu:</label>
-                    <input type="password" {...register("confirmPassword")} />
-                    <p style={{ color: "red" }}>{errors.confirmPassword?.message}</p>
-                </div>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="form-group">
+                            <label className="form-label">Họ tên:</label>
+                            <input
+                                className={`form-input ${errors.fullname ? 'input-error' : ''}`}
+                                {...register("fullname")}
+                                placeholder="Nhập họ và tên"
+                            />
+                            {errors.fullname && (
+                                <p className="error-message">{errors.fullname.message}</p>
+                            )}
+                        </div>
 
-                <button type="submit" style={{ marginTop: 16 }} disabled={isLoading}>
-                    {isLoading ? "Đang đăng ký..." : "Đăng ký"}
-                </button>
-            </form>
-            <ToastContainer />
+                        <div className="form-group">
+                            <label className="form-label">Mật khẩu:</label>
+                            <input
+                                type="password"
+                                className={`form-input ${errors.password ? 'input-error' : ''}`}
+                                {...register("password")}
+                                placeholder="Nhập mật khẩu"
+                            />
+                            {errors.password && (
+                                <p className="error-message">{errors.password.message}</p>
+                            )}
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Xác nhận mật khẩu:</label>
+                            <input
+                                type="password"
+                                className={`form-input ${errors.confirmPassword ? 'input-error' : ''}`}
+                                {...register("confirmPassword")}
+                                placeholder="Nhập lại mật khẩu"
+                            />
+                            {errors.confirmPassword && (
+                                <p className="error-message">{errors.confirmPassword.message}</p>
+                            )}
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="submit-btn"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <span className="spinner"></span>
+                                    Đang đăng ký...
+                                </>
+                            ) : (
+                                'Đăng ký'
+                            )}
+                        </button>
+                    </form>
+                </div>
+                <ToastContainer />
+            </div>
+            <Footer />
         </div>
     );
+
 }
 
 export default UserRegisterForm;
