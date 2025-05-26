@@ -5,11 +5,14 @@ import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { login as loginUser } from "../services/authApi";
+
+import Header from '../components/header';
+import Footer from '../components/footer';
+import GoogleLoginButton from "../components/GoogleLoginButton";
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import Header from '../components/header';
-import Footer from '../components/footer';
 import '../css/Login.css';
 
 const schema = yup.object().shape({
@@ -132,7 +135,13 @@ function LoginForm() {
                                 </button>
 
                                 <div className="text-center mt-3">
+                                    <p className="text-muted">
+                                        Chưa có tài khoản? <a href="/user-register">Đăng ký ngay</a>
+                                    </p>
                                     <a href="/forgot-password">Quên mật khẩu?</a>
+                                </div>
+                                <div className="text-center mt-3">
+                                    <GoogleLoginButton />
                                 </div>
                             </form>
                         </div>

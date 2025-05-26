@@ -31,9 +31,14 @@ function UserRegisterForm() {
         resolver: yupResolver(schema),
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const email = localStorage.getItem("registerEmail");
 
     const onSubmit = async (data) => {
+        setIsLoading(true);
+        setErrorMessage("");
+
         try {
             const res = await registerUser({
                 fullName: data.fullname,
@@ -46,18 +51,29 @@ function UserRegisterForm() {
                 toast.success("Đăng ký thành công!");
                 localStorage.removeItem("registerEmail");
                 window.location.href = "/login";
-            } else {
-                toast.error("Đăng ký thất bại!");
             }
         } catch (error) {
-            toast.error("Lỗi kết nối server!");
-            console.error("Error:", error);
+            if (error.response && error.response.status === 400) {
+                setErrorMessage("Đăng ký thất bại!");
+                toast.error("Đăng ký thất bại!");
+            } else {
+                toast.error("Lỗi kết nối server!");
+                console.error("Error:", error);
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div style={{ maxWidth: 400, margin: "40px auto" }}>
             <h2>Đăng ký</h2>
+            <p className="text-center text-muted login-form-subtitle">
+                Vui lòng điền thông tin để tạo tài khoản.
+            </p>
+            {errorMessage && (
+                <div className="alert alert-danger">{errorMessage}</div>
+            )}
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     <label>Họ tên:</label>
@@ -77,8 +93,8 @@ function UserRegisterForm() {
                     <p style={{ color: "red" }}>{errors.confirmPassword?.message}</p>
                 </div>
 
-                <button type="submit" style={{ marginTop: 16 }}>
-                    Đăng ký
+                <button type="submit" style={{ marginTop: 16 }} disabled={isLoading}>
+                    {isLoading ? "Đang đăng ký..." : "Đăng ký"}
                 </button>
             </form>
             <ToastContainer />

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -7,6 +8,7 @@ import { sendOtp } from "../services/authApi";
 
 import Header from '../components/header.js';
 import Footer from '../components/footer.js';
+import GoogleLoginButton from '../components/GoogleLoginButton.js';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -26,7 +28,12 @@ function UserRegister() {
         resolver: yupResolver(schema),
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
     const onSubmit = async (data) => {
+        setIsLoading(true);
+        setErrorMessage("");
         try {
             const res = await sendOtp({
                 email: data.email,
@@ -37,11 +44,15 @@ function UserRegister() {
                 localStorage.setItem("registerEmail", data.email);
                 window.location.href = "/verify-otp";
             } else {
+                setErrorMessage("Gửi mã OTP thất bại!");
                 toast.error("Gửi mã OTP thất bại!");
             }
         } catch (error) {
+            setErrorMessage("Lỗi kết nối server!");
             toast.error("Lỗi kết nối server!");
             console.error("Error:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -51,7 +62,6 @@ function UserRegister() {
             <div className="login-container">
                 <div className="container login-form-container shadow rounded overflow-hidden">
                     <div className="row">
-                        {/* Cột ảnh bên trái */}
                         <div className="col-md-6 d-none d-md-block login-image-col">
                             <img
                                 src="https://picsum.photos/800"
@@ -60,7 +70,6 @@ function UserRegister() {
                             />
                         </div>
 
-                        {/* Cột form bên phải */}
                         <div className="col-md-6 bg-white login-form-col">
                             <form className="register-form" onSubmit={handleSubmit(onSubmit)}>
                                 <h2 className="text-center mb-3">
@@ -70,23 +79,45 @@ function UserRegister() {
                                     Chào mừng! Vui lòng nhập email để đăng ký.
                                 </p>
 
+                                {errorMessage && (
+                                    <div className="alert alert-danger">{errorMessage}</div>
+                                )}
+
                                 <div className="mb-3">
                                     <label>Email</label>
                                     <div className="input-group">
                                         <span className="input-group-text"><i className="fas fa-envelope"></i></span>
                                         <input
                                             type="email"
-                                            className="form-control"
+                                            className={`form-control ${errors.email ? "is-invalid" : ""}`}
                                             placeholder="Nhập email"
                                             {...register("email")}
+                                            disabled={isLoading}
                                         />
+                                        {errors.email && (
+                                            <div className="invalid-feedback">
+                                                {errors.email.message}
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="text-danger">{errors.email?.message}</p>
                                 </div>
 
-                                <button type="submit" className="btn btn-primary login-form-button">
-                                    Gửi mã OTP
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary login-form-button"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "Đang gửi..." : "Gửi mã OTP"}
                                 </button>
+                                <p className="text-center mt-3">
+                                    Đã có tài khoản? <a href="/login">Đăng nhập</a>
+                                </p>
+                                <p className="text-center text-muted mt-3">
+                                    Hoặc đăng ký bằng tài khoản Google
+                                </p>
+                                <div className="text-center mt-3">
+                                    <GoogleLoginButton />
+                                </div>
                             </form>
                         </div>
                     </div>

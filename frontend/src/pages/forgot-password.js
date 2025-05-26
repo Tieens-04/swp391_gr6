@@ -23,6 +23,9 @@ function ForgotPassword() {
     const [errorMessage, setErrorMessage] = useState("");
 
     const onSubmit = async (data) => {
+        setIsLoading(true);
+        setErrorMessage("");
+
         try {
             const res = await forgotPassword({
                 email: data.email,
@@ -32,18 +35,29 @@ function ForgotPassword() {
                 toast.success(res.body);
                 localStorage.setItem("resetPasswordEmail", data.email);
                 window.location.href = "/otp-forgot-password";
-            } else {
-                toast.error("Gửi mã OTP thất bại!");
             }
         } catch (error) {
-            toast.error("Lỗi kết nối server!");
-            console.error("Error:", error);
+            if (error.response && error.response.status === 400) {
+                setErrorMessage("Gửi mã OTP thất bại!");
+                toast.error("Gửi mã OTP thất bại!");
+            } else {
+                toast.error("Lỗi kết nối server!");
+                console.error("Lỗi:", error);
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div style={{ maxWidth: 400, margin: "40px auto" }}>
-            <h2>Đăng ký</h2>
+            <h2>Quên mật khẩu</h2>
+            <p className="text-center text-muted login-form-subtitle">
+                Vui lòng nhập email của bạn để nhận mã OTP.
+            </p>
+            {errorMessage && (
+                <div className="alert alert-danger">{errorMessage}</div>
+            )}
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     <label>Email:</label>
@@ -51,8 +65,8 @@ function ForgotPassword() {
                     <p style={{ color: "red" }}>{errors.email?.message}</p>
                 </div>
 
-                <button type="submit" style={{ marginTop: 16 }}>
-                    Gửi mã OTP
+                <button type="submit" style={{ marginTop: 16 }} disabled={isLoading}>
+                    {isLoading ? "Đang gửi..." : "Gửi mã OTP"}
                 </button>
             </form>
             <ToastContainer />

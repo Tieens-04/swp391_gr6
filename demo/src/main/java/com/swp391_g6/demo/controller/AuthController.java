@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.swp391_g6.demo.dto.EmailRequest;
 import com.swp391_g6.demo.dto.LoginRequest;
 import com.swp391_g6.demo.dto.OtpVerificationRequest;
 import com.swp391_g6.demo.entity.User;
 import com.swp391_g6.demo.service.AuthService;
+import com.swp391_g6.demo.service.GoogleAuthService;
 import com.swp391_g6.demo.util.JwtUtil;
 
 @RestController
@@ -27,6 +29,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private GoogleAuthService googleAuthService;
 
     // [POST] /api/auth/send-otp - Gửi mã OTP đến email
     @PostMapping("/send-otp")
@@ -54,6 +59,31 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("token", jwt));
     }
 
+    // [POST] /api/auth/google - Đăng nhập bằng Google
+    @PostMapping("/google")
+    public ResponseEntity<Map<String, String>> googleLogin(@RequestBody TokenRequest tokenRequest) {
+        try {
+            GoogleIdToken.Payload payload = googleAuthService.verifyToken(tokenRequest.getToken());
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+            User user = authService.findByEmail(email);
+            if (user == null) {
+                user = new User();
+                user.setEmail(email);
+                user.setFullName(name);
+                user.setRole("SEEKER");
+                authService.createUser(user.getFullName(), user.getEmail(), "GOOGLE_USER", user.getRole());
+            }
+            user = authService.findByEmail(email);
+            String jwt = jwtUtil.generateToken(user);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", jwt));
+        } catch (Exception e) {
+            System.err.println("Google login error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Đăng nhập thất bại: " + e.getMessage()));
+        }
+    }
+
     // [POST] /api/auth/login - Đăng nhập người dùng
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
@@ -65,7 +95,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid credentials"));
         }
     }
-    
+
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest request) {
         authService.sendResetPasswordEmail(request.getEmail());
@@ -89,6 +119,18 @@ public class AuthController {
         }
         String newToken = jwtUtil.refreshToken(token);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", newToken));
+    }
+
+    public static class TokenRequest {
+        private String token;
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
     }
 
 }

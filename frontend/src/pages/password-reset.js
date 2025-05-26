@@ -27,9 +27,14 @@ function PasswordReset() {
         resolver: yupResolver(schema),
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const email = localStorage.getItem("resetPasswordEmail");
 
     const onSubmit = async (data) => {
+        setIsLoading(true);
+        setErrorMessage("");
+
         try {
             const res = await resetPassword({
                 email: email,
@@ -40,18 +45,29 @@ function PasswordReset() {
                 toast.success(res.body);
                 localStorage.removeItem("resetPasswordEmail");
                 window.location.href = "/login";
-            } else {
-                toast.error("Đặt lại mật khẩu thất bại!");
             }
         } catch (error) {
-            toast.error("Lỗi kết nối server!");
-            console.error("Error:", error);
+            if (error.response && error.response.status === 400) {
+                setErrorMessage("Đặt lại mật khẩu thất bại!");
+                toast.error("Đặt lại mật khẩu thất bại!");
+            } else {
+                toast.error("Lỗi kết nối server!");
+                console.error("Lỗi:", error);
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div style={{ maxWidth: 400, margin: "40px auto" }}>
-            <h2>Đăng ký</h2>
+            <h2>Đặt lại mật khẩu</h2>
+            <p className="text-center text-muted login-form-subtitle">
+                Vui lòng nhập mật khẩu mới của bạn.
+            </p>
+            {errorMessage && (
+                <div className="alert alert-danger">{errorMessage}</div>
+            )}
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     <label>Mật khẩu mới:</label>
@@ -65,8 +81,8 @@ function PasswordReset() {
                     <p style={{ color: "red" }}>{errors.confirmPassword?.message}</p>
                 </div>
 
-                <button type="submit" style={{ marginTop: 16 }}>
-                    Đăng ký
+                <button type="submit" style={{ marginTop: 16 }} disabled={isLoading}>
+                    {isLoading ? "Đang đặt lại..." : "Đặt lại"}
                 </button>
             </form>
             <ToastContainer />

@@ -83,6 +83,10 @@ public class AuthService {
         userRepository.save(user);
     }
 
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public User authenticate(String email, String password) {
         User user = userRepository.findByEmail(email);
         if (user != null && passwordEncoder.matches(password, user.getPasswordHash())) {

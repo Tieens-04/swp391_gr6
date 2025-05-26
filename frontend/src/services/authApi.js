@@ -12,6 +12,10 @@ export const register = async (data) => {
     return await axiosInstance.post("/auth/register", data);
 };
 
+export const googleLogin = async (data) => {
+    return await axiosInstance.post("/auth/google", data);
+}
+
 export const login = async (data) => {
     return await axiosInstance.post("/auth/login", data);
 };
