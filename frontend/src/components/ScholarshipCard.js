@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { googleLogin } from '../services/authApi';
 
 function ScholarshipCard() {
     const [isLoading, setIsLoading] = useState(false);

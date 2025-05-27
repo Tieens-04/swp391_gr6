@@ -1,7 +1,9 @@
-// src/pages/home.js
 import React from 'react';
+import 'react-toastify/dist/ReactToastify.css';
+
 import Header from '../components/header';
 import Footer from '../components/footer';
+import ScholarshipCard from '../components/ScholarshipCard';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -12,9 +14,14 @@ export default function Home() {
     <>
       <Header />
 
-      <div className="container mt-5">
-        <h2 className="text-center">Main content goes here...</h2>
-      </div>
+      <main className="container mt-5">
+        <h2 className="text-center">Available Scholarships</h2>
+        <div className="row">
+          <ScholarshipCard />
+          <ScholarshipCard />
+          <ScholarshipCard />
+        </div>
+      </main>
 
       <Footer />
     </>

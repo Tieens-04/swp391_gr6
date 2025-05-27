@@ -23,25 +23,63 @@ function OtpForgotPassword() {
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
     });
 
+    const [otpValues, setOtpValues] = useState(Array(6).fill(""));
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const handleOtpChange = (e, index) => {
+        const value = e.target.value.replace(/\D/, "");
+        if (value.length > 1) return;
+
+        const newOtpValues = [...otpValues];
+        newOtpValues[index] = value;
+        setOtpValues(newOtpValues);
+        setValue("otp", newOtpValues.join(""));
+
+        if (value && index < 5) {
+            const nextInput = document.querySelector(
+                `.otp-single-input:nth-child(${index + 2})`
+            );
+            if (nextInput) nextInput.focus();
+        }
+    };
+
+    const handleOtpPaste = (e) => {
+        e.preventDefault();
+        const pasteData = e.clipboardData.getData('text/plain').trim();
+        if (pasteData.length === 6 && /^\d{6}$/.test(pasteData)) {
+            const newOtpValues = pasteData.split('');
+            setOtpValues(newOtpValues);
+            setValue("otp", pasteData);
+            const otpInputs = document.querySelectorAll('.otp-single-input');
+            if (otpInputs[5]) otpInputs[5].focus();
+        }
+    };
+
+    const handleOtpKeyDown = (e, index) => {
+        if (e.key === "Backspace" && otpValues[index] === "" && index > 0) {
+            const prevInput = document.querySelector(
+                `.otp-single-input:nth-child(${index})`
+            );
+            if (prevInput) prevInput.focus();
+        }
+    };
 
     const onSubmit = async (data) => {
         setIsLoading(true);
         setErrorMessage("");
-
         try {
             const res = await verifyOtp({
                 email: localStorage.getItem("resetPasswordEmail"),
                 otp: data.otp,
                 task: "reset_password",
             });
-
             if (res.status === 200) {
                 toast.success(res.body);
                 window.location.href = "/password-reset";
@@ -56,45 +94,6 @@ function OtpForgotPassword() {
             }
         } finally {
             setIsLoading(false);
-        }
-    };
-    const handleOtpChange = (e, index) => {
-        const value = e.target.value;
-
-
-        if (value && !isNaN(value)) {
-
-            if (index < 5) {
-                const nextInput = document.querySelector(
-                    `.otp-single-input:nth-child(${index + 2})`
-                );
-                nextInput.focus();
-            }
-        }
-    };
-
-    const handleOtpPaste = (e) => {
-        e.preventDefault();
-        const pasteData = e.clipboardData.getData('text/plain').trim();
-
-
-        if (pasteData.length === 6 && !isNaN(pasteData)) {
-            const otpInputs = document.querySelectorAll('.otp-single-input');
-
-
-            pasteData.split('').forEach((char, index) => {
-                if (index < 6) {
-                    otpInputs[index].value = char;
-
-                    const event = { target: { value: char, name: `otp.${index}` } };
-                    handleOtpChange(event, index);
-                }
-            });
-
-
-            if (otpInputs[5]) {
-                otpInputs[5].focus();
-            }
         }
     };
 
@@ -119,16 +118,17 @@ function OtpForgotPassword() {
                                         key={index}
                                         type="text"
                                         maxLength={1}
-                                        {...register(`otp.${index}`)}
+                                        value={otpValues[index]}
                                         className="otp-single-input"
                                         onChange={(e) => handleOtpChange(e, index)}
                                         onPaste={handleOtpPaste}
+                                        onKeyDown={(e) => handleOtpKeyDown(e, index)}
                                     />
                                 ))}
+                                <input type="hidden" {...register("otp")} value={otpValues.join("")} />
                             </div>
                             <p className="error-message">{errors.otp?.message}</p>
                         </div>
-
                         <button type="submit" disabled={isLoading} className="submit-btn">
                             {isLoading ? "Đang xác thực..." : "Xác thực"}
                         </button>

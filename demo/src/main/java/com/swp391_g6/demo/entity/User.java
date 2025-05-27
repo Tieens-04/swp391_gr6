@@ -1,5 +1,6 @@
 package com.swp391_g6.demo.entity;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 import jakarta.persistence.Column;
@@ -15,8 +16,8 @@ public class User {
     @Column(name = "user_id")
     private String user_id;
 
-    @Column(name = "full_name")
-    private String full_name;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "email")
     private String email;
@@ -26,6 +27,15 @@ public class User {
 
     @Column(name = "role")
     private String role;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "date_of_birth")
+    private Date date_of_birth;
+
+    @Column(name = "gender")
+    private String gender;
 
     @Column(name = "created_at", updatable = false)
     private Timestamp created_at;
@@ -41,14 +51,26 @@ public class User {
         this.password_hash = password_hash;
     }
 
-    public User(String user_id, String full_name, String email, String password_hash, String role, Timestamp created_at, Timestamp updated_at) {
-        this.user_id = user_id;
-        this.full_name = full_name;
+    public User(String name, String email, String password_hash, String role, String phone, Date date_of_birth, String gender) {
+        this.name = name;
         this.email = email;
         this.password_hash = password_hash;
         this.role = role;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+        this.phone = phone;
+        this.date_of_birth = date_of_birth;
+        this.gender = gender;
+    }
+
+    public User(String user_id, String name, String email, String password_hash, String role, String phone,
+                Date date_of_birth, String gender) {
+        this.user_id = user_id;
+        this.name = name;
+        this.email = email;
+        this.password_hash = password_hash;
+        this.role = role;
+        this.phone = phone;
+        this.date_of_birth = date_of_birth;
+        this.gender = gender;
     }
 
     public String getUserId() {
@@ -59,12 +81,12 @@ public class User {
         this.user_id = user_id;
     }
 
-    public String getFullName() {
-        return full_name;
+    public String getName() {
+        return name;
     }
 
-    public void setFullName(String full_name) {
-        this.full_name = full_name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -81,6 +103,30 @@ public class User {
 
     public void setPasswordHash(String password_hash) {
         this.password_hash = password_hash;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public Date getDateOfBirth() {
+        return date_of_birth;
+    }
+
+    public void setDateOfBirth(Date date_of_birth) {
+        this.date_of_birth = date_of_birth;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getRole() {

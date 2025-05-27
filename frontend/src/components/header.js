@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 export default function Header() {
-  const isLoggedIn = !!localStorage.getItem('token');
+  const { user, logout } = useContext(UserContext);
 
   return (
     <header className="bg-dark text-white">
@@ -26,21 +27,54 @@ export default function Header() {
           </button>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
-              {!isLoggedIn && (
+              {!user.isLoggedIn && (
                 <>
                   <li className="nav-item">
-                    <a className="nav-link" href="/login">
-                      Login
-                    </a>
+                    <a className="nav-link" href="/login">Login</a>
                   </li>
                   <li className="nav-item">
-                    <a className="nav-link" href="/user-register">
-                      Register
-                    </a>
+                    <a className="nav-link" href="/user-register">Register</a>
                   </li>
                 </>
               )}
-              {/* Nếu muốn thêm các mục cho user đã đăng nhập, thêm ở đây */}
+              {user.isLoggedIn && user.role === 'admin' && (
+                <>
+                  <li className="nav-item">
+                    <a className="nav-link" href="/admin/manage-users">Manage Users</a>
+                  </li>
+                  <li className="nav-item">
+                    <a className="nav-link" href="/manage-scholarships">Manage Scholarships</a>
+                  </li>
+                  <li className="nav-item">
+                    <a className="nav-link" href="/admin-dashboard">Admin Dashboard</a>
+                  </li>
+                </>
+              )}
+              {user.isLoggedIn && user.role === 'user' && (
+                <>
+                  <li className="nav-item">
+                    <a className="nav-link" href="/profile">Profile</a>
+                  </li>
+                  <li className="nav-item">
+                    <a className="nav-link" href="/my-orders">My Orders</a>
+                  </li>
+                </>
+              )}
+              {user.isLoggedIn && (
+                <li className="nav-item">
+                  <a
+                    className="nav-link"
+                    href="/logout"
+                    onClick={e => {
+                      e.preventDefault();
+                      logout();
+                      window.location.href = "/login";
+                    }}
+                  >
+                    Logout
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
         </div>

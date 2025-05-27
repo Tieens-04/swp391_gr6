@@ -1,5 +1,6 @@
 package com.swp391_g6.demo.service;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -68,15 +69,54 @@ public class AuthService {
         return token.getOtp_code().equals(otp);
     }
 
-    public void createUser(String full_name, String email, String password, String role) {
+    public void createUser(String name, String email, Date date_of_birth, String phone, String gender, String password) {
         String user_id = idGeneratorService.generateId("USER", false, 10);
         String password_hash = passwordEncoder.encode(password);
         User user = new User();
         user.setUserId(user_id);
-        user.setFullName(full_name);
+        user.setName(name);
         user.setEmail(email);
         user.setPasswordHash(password_hash);
-        user.setRole(role);
+        user.setRole("seeker");
+        user.setPhone(phone);
+        user.setDateOfBirth(date_of_birth);
+        user.setGender(gender);
+        Timestamp now = Timestamp.from(java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Bangkok")).toInstant());
+        user.setCreatedAt(now);
+        user.setUpdatedAt(now);
+        userRepository.save(user);
+    }
+
+    public void createStaff(String name, String email, Date date_of_birth, String phone, String gender, String password) {
+        String user_id = idGeneratorService.generateId("USER", false, 10);
+        String password_hash = passwordEncoder.encode(password);
+        User user = new User();
+        user.setUserId(user_id);
+        user.setName(name);
+        user.setEmail(email);
+        user.setPasswordHash(password_hash);
+        user.setRole("staff");
+        user.setPhone(phone);
+        user.setDateOfBirth(date_of_birth);
+        user.setGender(gender);
+        Timestamp now = Timestamp.from(java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Bangkok")).toInstant());
+        user.setCreatedAt(now);
+        user.setUpdatedAt(now);
+        userRepository.save(user);
+    }
+
+    public void createAdmin(String name, String email, Date date_of_birth, String phone, String gender, String password) {
+        String user_id = idGeneratorService.generateId("USER", false, 10);
+        String password_hash = passwordEncoder.encode(password);
+        User user = new User();
+        user.setUserId(user_id);
+        user.setName(name);
+        user.setEmail(email);
+        user.setPasswordHash(password_hash);
+        user.setRole("admin");
+        user.setPhone(phone);
+        user.setDateOfBirth(date_of_birth);
+        user.setGender(gender);
         Timestamp now = Timestamp.from(java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Bangkok")).toInstant());
         user.setCreatedAt(now);
         user.setUpdatedAt(now);

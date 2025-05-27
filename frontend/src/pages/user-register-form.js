@@ -1,22 +1,42 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { register as registerUser } from "../services/authApi";
+
 import Header from '../components/header';
 import Footer from '../components/footer';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../css/register.css';
 
 const schema = yup.object().shape({
-    fullname: yup
+    name: yup
         .string()
         .required("Vui lòng nhập họ tên")
         .matches(/^[a-zA-Z\s]+$/, "Họ tên không được chứa số hoặc ký tự đặc biệt"),
+    phone: yup
+        .string()
+        .required("Vui lòng nhập số điện thoại")
+        .matches(/^(0[3|5|7|8|9]\d{8})$/, "Số điện thoại không hợp lệ"),
+    date_of_birth: yup
+        .date()
+        .required("Vui lòng nhập ngày sinh")
+        .max(new Date(), "Ngày sinh không thể là tương lai")
+        .test("age", "Bạn phải từ 10 tuổi trở lên", (value) => {
+            if (!value) return false;
+            const today = new Date();
+            const age = today.getFullYear() - value.getFullYear();
+            const m = today.getMonth() - value.getMonth();
+            return age > 10 || (age === 10 && m >= 0);
+        }),
+    gender: yup
+        .string()
+        .required("Vui lòng chọn giới tính"),
     password: yup
         .string()
         .required("Vui lòng nhập mật khẩu")
@@ -48,10 +68,12 @@ function UserRegisterForm() {
 
         try {
             const res = await registerUser({
-                fullName: data.fullname,
+                name: data.name,
                 email: email,
+                phone: data.phone,
+                dateOfBirth: data.date_of_birth,
+                gender: data.gender,
                 passwordHash: data.password,
-                role: "applicant",
             });
 
             if (res.status === 201) {
@@ -87,42 +109,97 @@ function UserRegisterForm() {
                     )}
 
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="form-group">
-                            <label className="form-label">Họ tên:</label>
-                            <input
-                                className={`form-input ${errors.fullname ? 'input-error' : ''}`}
-                                {...register("fullname")}
-                                placeholder="Nhập họ và tên"
-                            />
-                            {errors.fullname && (
-                                <p className="error-message">{errors.fullname.message}</p>
-                            )}
+                        <div className="row">
+                            <div className="col-md-6">
+                                <div className="form-group">
+                                    <label className="form-label">Họ tên:</label>
+                                    <input
+                                        className={`form-input ${errors.name ? 'input-error' : ''}`}
+                                        {...register("name")}
+                                        placeholder="Nhập họ và tên"
+                                    />
+                                    {errors.name && (
+                                        <p className="error-message">{errors.name.message}</p>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="col-md-6">
+                                <div className="form-group">
+                                    <label className="form-label">Ngày sinh:</label>
+                                    <input
+                                        type="date"
+                                        className={`form-input ${errors.date_of_birth ? 'input-error' : ''}`}
+                                        {...register("date_of_birth")}
+                                    />
+                                    {errors.date_of_birth && (
+                                        <p className="error-message">{errors.date_of_birth.message}</p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="form-group">
-                            <label className="form-label">Mật khẩu:</label>
-                            <input
-                                type="password"
-                                className={`form-input ${errors.password ? 'input-error' : ''}`}
-                                {...register("password")}
-                                placeholder="Nhập mật khẩu"
-                            />
-                            {errors.password && (
-                                <p className="error-message">{errors.password.message}</p>
-                            )}
+                        <div className="row">
+                            <div className="col-md-6">
+                                <div className="form-group">
+                                    <label className="form-label">Số điện thoại:</label>
+                                    <input
+                                        className={`form-input ${errors.phone ? 'input-error' : ''}`}
+                                        {...register("phone")}
+                                        placeholder="Nhập số điện thoại"
+                                    />
+                                    {errors.phone && (
+                                        <p className="error-message">{errors.phone.message}</p>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="col-md-6">
+                                <div className="form-group">
+                                    <label className="form-label">Giới tính:</label>
+                                    <select
+                                        className={`form-input ${errors.gender ? 'input-error' : ''}`}
+                                        {...register("gender")}
+                                    >
+                                        <option value="">Chọn giới tính</option>
+                                        <option value="male">Nam</option>
+                                        <option value="female">Nữ</option>
+                                        <option value="other">Khác</option>
+                                    </select>
+                                    {errors.gender && (
+                                        <p className="error-message">{errors.gender.message}</p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="form-group">
-                            <label className="form-label">Xác nhận mật khẩu:</label>
-                            <input
-                                type="password"
-                                className={`form-input ${errors.confirmPassword ? 'input-error' : ''}`}
-                                {...register("confirmPassword")}
-                                placeholder="Nhập lại mật khẩu"
-                            />
-                            {errors.confirmPassword && (
-                                <p className="error-message">{errors.confirmPassword.message}</p>
-                            )}
+                        <div className="row">
+                            <div className="col-md-6">
+                                <div className="form-group">
+                                    <label className="form-label">Mật khẩu:</label>
+                                    <input
+                                        type="password"
+                                        className={`form-input ${errors.password ? 'input-error' : ''}`}
+                                        {...register("password")}
+                                        placeholder="Nhập mật khẩu"
+                                    />
+                                    {errors.password && (
+                                        <p className="error-message">{errors.password.message}</p>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="col-md-6">
+                                <div className="form-group">
+                                    <label className="form-label">Xác nhận mật khẩu:</label>
+                                    <input
+                                        type="password"
+                                        className={`form-input ${errors.confirmPassword ? 'input-error' : ''}`}
+                                        {...register("confirmPassword")}
+                                        placeholder="Nhập lại mật khẩu"
+                                    />
+                                    {errors.confirmPassword && (
+                                        <p className="error-message">{errors.confirmPassword.message}</p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
                         <button

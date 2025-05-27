@@ -51,10 +51,46 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body("OTP hợp lệ. Tiếp tục đăng ký.");
     }
 
+    // [POST] /api/auth/create-staff - Tạo nhân viên
+    @PostMapping("/create-staff")
+    public ResponseEntity<String> createStaff(@RequestBody User user) {
+        authService.createStaff(
+                user.getName(),
+                user.getEmail(),
+                user.getDateOfBirth(),
+                user.getPhone(),
+                user.getGender(),
+                user.getPasswordHash()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body("Staff created successfully");
+    }
+
+    // [POST] /api/auth/create-admin - Tạo admin
+    @PostMapping("/create-admin")
+    public ResponseEntity<String> createAdmin(@RequestBody User user) {
+        authService.createAdmin(
+                user.getName(),
+                user.getEmail(),
+                user.getDateOfBirth(),
+                user.getPhone(),
+                user.getGender(),
+                user.getPasswordHash()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body("Admin created successfully");
+    }
+
     // [POST] /api/auth/register - Đăng ký người dùng
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
-        authService.createUser(user.getFullName(), user.getEmail(), user.getPasswordHash(), user.getRole());
+        authService.createUser(
+                user.getName(),
+                user.getEmail(),
+                user.getDateOfBirth(),
+                user.getPhone(),
+                user.getGender(),
+                user.getPasswordHash()
+        );
+        System.out.println("User registered: " + user.getDateOfBirth());
         String jwt = jwtUtil.generateToken(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("token", jwt));
     }
@@ -70,9 +106,9 @@ public class AuthController {
             if (user == null) {
                 user = new User();
                 user.setEmail(email);
-                user.setFullName(name);
-                user.setRole("SEEKER");
-                authService.createUser(user.getFullName(), user.getEmail(), "GOOGLE_USER", user.getRole());
+                user.setName(name);
+                user.setRole("seeker");
+                authService.createUser(user.getName(), user.getEmail(), null, null, null, "GOOGLE_USER");
             }
             user = authService.findByEmail(email);
             String jwt = jwtUtil.generateToken(user);

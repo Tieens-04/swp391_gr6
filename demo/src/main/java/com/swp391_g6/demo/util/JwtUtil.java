@@ -37,6 +37,24 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    public User extractUserFromToken(String token) {
+        try {
+            String email = extractEmail(token);
+            String role = Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("role", String.class);
+
+            User user = new User();
+            user.setEmail(email);
+            user.setRole(role);
+            return user;
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);

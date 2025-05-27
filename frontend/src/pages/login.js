@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { UserContext } from "../contexts/UserContext";
 import { login as loginUser } from "../services/authApi";
 
 import Header from '../components/header';
@@ -29,6 +30,7 @@ function LoginForm() {
 
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const { login } = useContext(UserContext);
 
     const onSubmit = async (data) => {
         setIsLoading(true);
@@ -41,10 +43,15 @@ function LoginForm() {
             });
 
             if (res.status === 200) {
-                const { accessToken } = res.data;
-                localStorage.setItem("accessToken", accessToken);
-                toast.success("Đăng nhập thành công!");
-                window.location.href = "/";
+                const accessToken = res.data.token;
+                if (typeof accessToken === "string" && accessToken.length > 0) {
+                    login(accessToken);
+                    toast.success("Đăng nhập thành công!");
+                    window.location.href = "/";
+                } else {
+                    setErrorMessage("Lỗi: Không nhận được accessToken hợp lệ từ server.");
+                    toast.error("Đăng nhập thất bại! Token không hợp lệ.");
+                }
             }
         } catch (error) {
             if (error.response && error.response.status === 401) {
