@@ -164,3 +164,17 @@
 footer, .footer {
   margin-top: auto !important; /* đẩy Footer xuống dưới cùng */
 }
+
+.scholarship-card {
+  border-color: #dee2e6;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.scholarship-card:hover {
+  border-color: #0b5ed7;
+  box-shadow: 0 0 10px rgba(13, 110, 253, 0.3);
+}
+
+.scholarship-card:hover .sponsor-name {
+  color:  #0b5ed7;
+}

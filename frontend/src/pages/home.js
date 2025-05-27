@@ -20,6 +20,12 @@ export default function Home() {
           <ScholarshipCard />
           <ScholarshipCard />
           <ScholarshipCard />
+          <ScholarshipCard />
+          <ScholarshipCard />
+          <ScholarshipCard />
+          <ScholarshipCard />
+          <ScholarshipCard />
+          <ScholarshipCard />
         </div>
       </main>
 
