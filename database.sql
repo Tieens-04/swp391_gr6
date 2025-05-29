@@ -115,40 +115,48 @@ CREATE TABLE organizations (
 
 -- Ví dụ insert:
 INSERT INTO organizations (
-    organization_id, name, description, website_url, logo_url, contact_email, contact_phone, address, country, organization_type, is_verified
+    organization_id, name, description, world_rank, logo_url, number_student, avg_cost_living, country, organization_type, is_verified
 ) VALUES (
-    'ORG0000001',
-    'University of Example',
-    'As Ireland’s leading university, we are inspiring the next generation of global citizens and global leaders.',
-    'https://www.tcd.ie/',
-    'https://www.tcd.ie/logo.png',
-    'secretary@tcd.ie',
-    '+35318961000',
-    'College Green, Dublin 2, Ireland',
-    'Ireland',
-    'university',
+    'ORG0000003',
+    'The University of Sydney',
+    'The University of Sydney, located in Sydney, Australia, is a world-renowned educational institution that is consistently ranked in the top 20 universities in the world (QS World University Rankings, 2024). It is also ranked number 1 in Australia and number 4 globally for graduate employability, according to the QS Graduate Employability Rankings, 2022. Students from all over the world choose to study undergraduate and postgraduate degrees here.
+
+Here, you will have the choice of more than 400 subjects and training programs in Australia, with a total of 5 subjects ranked in the world\'s top 10, and a further 28 subjects ranked in the global top 50 (QS World University Rankings by Subject 2022). Student employment opportunities are enhanced through internships and work placements, as well as study abroad options as part of the university’s degree.
+
+Students will learn, develop and grow in a supportive environment, with a range of services to facilitate their studies. These include academic and professional support, as well as disability support, confidential counselling, health and welfare services and a financial aid office. Students can also join more than 250 clubs and societies, ranging from sporting to cultural activities, run by the University of Sydney Union (USU) on campus.
+
+You can take advantage of the university’s on-campus facilities, including a gym with an Olympic-sized swimming pool and a climbing centre. There are also galleries, museums, cafes, restaurants and bars to keep you entertained, and you can access the largest university library in the southern hemisphere.
+
+The student experience is enhanced and enriched by one of the world’s best cities, Sydney, which was ranked the 4th safest place to live in the world by the Economist’s Safe Cities Index 2021.',
+    61,
+    'https://images-intl.prod.aws.idp-connect.com/commimg/myhotcourses/institution/myhc_254386.jpg',
+    32937,
+    963,
+    'Australia',
+    'University',
     TRUE
 );
+
+DESC organizations;
+
+DESC scholarships;
 
 -- Scholarships
 CREATE TABLE scholarships (
     scholarship_id VARCHAR(15) PRIMARY KEY,
     title VARCHAR(300) NOT NULL,
-    description TEXT,
-    full_description LONGTEXT,
+    world_rank INT,
+    description LONGTEXT,
     organization_id VARCHAR(15) NOT NULL,
     category_id VARCHAR(15) NOT NULL,
-    scholarship_type VARCHAR(255) NOT NULL,
     amount DECIMAL(15,2),
     currency VARCHAR(10) DEFAULT 'USD',
-    duration_months INT,
     application_deadline DATE,
     eligibility_criteria JSON,
     countries JSON,
     education_levels JSON,
     fields_of_study JSON,
     language_requirements JSON,
-    gpa_min DECIMAL(4,2),
     status ENUM('draft', 'active', 'inactive', 'expired') DEFAULT 'draft',
     views_count INT DEFAULT 0,
     applications_count INT DEFAULT 0,
@@ -168,20 +176,17 @@ INSERT INTO scholarships (
     scholarship_id,
     title,
     description,
-    full_description,
     organization_id,
     category_id,
-    scholarship_type,
     amount,
     currency,
-    duration_months,
+    duration,
     application_deadline,
     eligibility_criteria,
     countries,
     education_levels,
     fields_of_study,
     language_requirements,
-    gpa_min,
     status,
     views_count,
     applications_count,
@@ -190,28 +195,31 @@ INSERT INTO scholarships (
     approved_by,
     approved_at
 ) VALUES (
-    'SCHOLAR0000001',
-    'TR080 Global Business (Bachelor in Business Studies) Scholarship 2024-25',
-    'Scholarships valued between €3000 to €5000 each, applied as a reduction to the tuition fees for the Global Business (Bachelor in Business Studies) for the first year only.',
-    'This scholarship is awarded to international students who demonstrate academic excellence and leadership potential. Full details at our website.',
-    'ORG0000001',
-    'SCHOLARCATE0001',
-    'Merit-based',
-    5000.00,
-    'EUR',
-    12,
-    '2025-08-31',
+    'SCHOLAR0000007',
+    'MSc Marketing (Dubai Campus)',
+    'Our new Master of Professional Accounting and Business Performance will give you the skills and experience to bring value to any organisation in a disruptive global economy.
+Co-designed with industry, this program will give you a unique, future-proofed skillset that will help you identify business opportunities and solve accounting and business problems in innovative ways to drive organisational performance.
+
+You\'ll develop deep technical skills and progress towards accreditation requirements with CPA Australia, Chartered Accountants Australia and New Zealand (CAANZ) as well as the Association of Chartered Certified Accountants (ACCA).
+
+You\'ll also develop the key analytics, technology and communication skills to lead in enterprise performance management, as well as build your experience with cloud-based accounting technology platforms.
+And with opportunities to gain real-world experience, develop transferable career skills and explore corporate social responsibility and governance, you\'ll graduate in-demand and on track to become an ethical business leader in accounting practice, management and beyond.',
+    'ORG0000003',
+    'SCHOLARCATE0004',
+    56500.00,
+    'AUD',
+    24,
+    '2025-08-04',
     '{"nationality": "All international"}',
-    '["Ireland"]',
-    '["university"]',
-    '["International business"]',
-    '["IELTS 6.5", "TOEFL 90"]',
-    3.50,
+    '["Darlington, Australia"]',
+    '["University"]',
+    '["Masters Degree (Coursework)"]',
+    '["IELTS 7.0"]',
     'active',
     0,
     0,
     TRUE,
-    'USER0000001',
+    'USER0000000002',
     NULL,
     NULL
 );

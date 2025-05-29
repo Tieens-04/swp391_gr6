@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Header from '../components/header';
@@ -9,27 +9,55 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
+import { getAllScholarships } from '../services/scholarshipApi';
+import { UserContext } from '../contexts/UserContext';
+
 export default function Home() {
-  return (
-    <>
-      <Header />
+    const [scholarships, setScholarships] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const { user } = useContext(UserContext);
 
-      <main className="container mt-5">
-        <h2 className="text-center">Available Scholarships</h2>
-        <div className="row">
-          <ScholarshipCard />
-          <ScholarshipCard />
-          <ScholarshipCard />
-          <ScholarshipCard />
-          <ScholarshipCard />
-          <ScholarshipCard />
-          <ScholarshipCard />
-          <ScholarshipCard />
-          <ScholarshipCard />
-        </div>
-      </main>
+    useEffect(() => {
+        const fetchScholarships = async () => {
+            setLoading(true);
+            try {
+                // Lấy token từ UserContext và gửi đúng key "token"
+                const token = user?.accessToken;
+                if (!token) {
+                    setScholarships([]);
+                    setLoading(false);
+                    return;
+                }
+                const res = await getAllScholarships({ token });
+                setScholarships(res.data);
+            } catch (err) {
+                setScholarships([]);
+            }
+            setLoading(false);
+        };
+        fetchScholarships();
+    }, [user]);
 
-      <Footer />
-    </>
-  );
+    return (
+        <>
+            <Header />
+
+            <main className="container mt-5">
+                <h2 className="text-center">Available Scholarships</h2>
+                <div className="row">
+                    {loading ? (
+                        <div className="text-center my-5">Đang tải học bổng...</div>
+                    ) : scholarships.length === 0 ? (
+                        <div className="text-center my-5">Không có học bổng nào.</div>
+                    ) : (
+                        scholarships.map((scholarship) => (
+                            <ScholarshipCard key={scholarship.scholarshipId} scholarship={scholarship} />
+                        ))
+                    )}
+                </div>
+            </main>
+
+            <Footer />
+        </>
+    );
 }

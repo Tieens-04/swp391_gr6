@@ -6,7 +6,6 @@ import LoginForm from "../pages/login";
 import ForgotPassword from "../pages/forgot-password";
 import OtpForgotPassword from "../pages/otp-forgot-password";
 import PasswordReset from "../pages/password-reset";
-import Home from "../pages/home";
 
 function AuthRoute() {
     return (
@@ -18,7 +17,6 @@ function AuthRoute() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/otp-forgot-password" element={<OtpForgotPassword />} />
             <Route path="/password-reset" element={<PasswordReset />} />
-            <Route path="/" element={<Home />} />
         </Routes>
     );
 }
