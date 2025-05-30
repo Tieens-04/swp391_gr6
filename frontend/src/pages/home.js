@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
-
+import Banner from '../components/banner';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import ScholarshipCard from '../components/ScholarshipCard';
@@ -34,7 +34,7 @@ export default function Home() {
     return (
         <>
             <Header />
-
+            <Banner />
             <main className="container mt-5">
                 <h2 className="text-center">Available Scholarships</h2>
                 <div className="row">
