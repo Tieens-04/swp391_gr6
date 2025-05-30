@@ -51,7 +51,7 @@ function PasswordReset() {
             if (res.status === 200) {
                 toast.success(res.body);
                 localStorage.removeItem("resetPasswordEmail");
-                window.location.href = "/login";
+                window.location.href = "/auth/login";
             }
         } catch (error) {
             if (error.response && error.response.status === 400) {

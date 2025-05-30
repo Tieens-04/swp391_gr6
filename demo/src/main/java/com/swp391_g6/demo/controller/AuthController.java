@@ -114,7 +114,6 @@ public class AuthController {
             String jwt = jwtUtil.generateToken(user);
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", jwt));
         } catch (Exception e) {
-            System.err.println("Google login error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Đăng nhập thất bại: " + e.getMessage()));
         }

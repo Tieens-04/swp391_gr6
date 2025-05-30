@@ -38,7 +38,7 @@ function ForgotPassword() {
             if (res.status === 200) {
                 toast.success(res.body);
                 localStorage.setItem("resetPasswordEmail", data.email);
-                window.location.href = "/otp-forgot-password";
+                window.location.href = "/auth/otp-forgot-password";
             }
         } catch (error) {
             if (error.response && error.response.status === 400) {

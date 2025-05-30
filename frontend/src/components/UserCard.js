@@ -1,22 +1,40 @@
-function UserCard({ user }) {
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
+function UserCard({ user, onBan }) {
     return (
-        <div className="card shadow-sm border-0 rounded-4">
+        <div className="card shadow-sm border-0 rounded-4 mb-4">
             <div className="card-body">
-                <div className="d-flex align-items-center mb-3">
-                    <div className="me-3">
-                        <i className="fas fa-user-circle fa-4x text-secondary"></i>
-                    </div>
-                    <div>
-                        <h5 className="card-title mb-0">Name: {user.name}</h5>
-                        <h5 className="card-title mb-1">Email: {user.email}</h5>
-                        <span className="badge bg-info text-dark">{user.role}</span>
-                    </div>
+                <div className="mb-3 d-flex justify-content-between align-items-center">
+                    <span className="badge bg-primary fs-6">
+                        <strong>ID:</strong> {user.userId}
+                    </span>
+                    <span className="badge bg-info text-dark">{user.role}</span>
                 </div>
-                <ul className="list-group list-group-flush">
-                    <li className="list-group-item">
-                        <strong>ID:</strong> {user.user_id}
-                    </li>
-                </ul>
+                <div className="text-center mb-3">
+                    <i className="fas fa-user-circle fa-4x text-secondary"></i>
+                </div>
+                <div className="mb-2">
+                    <h5 className="card-title mb-1">Name: {user.name}</h5>
+                </div>
+                <div className="mb-2">
+                    <h5 className="card-title mb-1">Email: {user.email}</h5>
+                </div>
+                <div className="mb-2">
+                    <h5 className="card-title mb-1">Phone: {user.phone}</h5>
+                </div>
+                <div className="mb-3">
+                    <h5 className="card-title mb-1">Date of Birth: {user.dateOfBirth}</h5>
+                </div>
+                <div className="d-grid">
+                    <button
+                        className="btn btn-danger"
+                        onClick={() => onBan && onBan(user)}
+                    >
+                        <i className="fas fa-ban me-2"></i>Ban
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -82,7 +82,7 @@ function OtpForgotPassword() {
             });
             if (res.status === 200) {
                 toast.success(res.body);
-                window.location.href = "/password-reset";
+                window.location.href = "/auth/password-reset";
             }
         } catch (error) {
             if (error.response && error.response.status === 401) {

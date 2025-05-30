@@ -44,9 +44,6 @@ CREATE TABLE admin_profiles (
 CREATE TABLE staff_profiles (
     staff_id VARCHAR(15) PRIMARY KEY,
     specialization VARCHAR(200),
-    languages_spoken JSON,
-    max_seekers INT DEFAULT 20,
-    current_seekers INT DEFAULT 0,
     bio TEXT,
     experience_years INT DEFAULT 0,
     rating DECIMAL(3,2) DEFAULT 0.00,
@@ -136,6 +133,8 @@ The student experience is enhanced and enriched by one of the world’s best cit
     'University',
     TRUE
 );
+
+DESC users;
 
 DESC organizations;
 

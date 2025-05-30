@@ -43,7 +43,7 @@ export default function Header() {
                                         <a className="nav-link" href="/admin/manage-users">Manage Users</a>
                                     </li>
                                     <li className="nav-item">
-                                        <a className="nav-link" href="/admin/manage-scholarships">Manage Scholarships</a>
+                                        <a className="nav-link" href="/manage-scholarships">Manage Scholarships</a>
                                     </li>
                                     <li className="nav-item">
                                         <a className="nav-link" href="/admin-dashboard">Admin Dashboard</a>

@@ -79,7 +79,7 @@ function UserRegisterForm() {
             if (res.status === 201) {
                 toast.success("Đăng ký thành công!");
                 localStorage.removeItem("registerEmail");
-                window.location.href = "/login";
+                window.location.href = "/auth/login";
             }
         } catch (error) {
             if (error.response && error.response.status === 400) {

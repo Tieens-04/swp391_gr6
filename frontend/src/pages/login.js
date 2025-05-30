@@ -145,7 +145,7 @@ function LoginForm() {
                                     <p className="text-muted">
                                         Chưa có tài khoản? <a href="/user-register">Đăng ký ngay</a>
                                     </p>
-                                    <a href="/forgot-password">Quên mật khẩu?</a>
+                                    <a href="/auth/forgot-password">Quên mật khẩu?</a>
                                 </div>
                                 <div className="text-center mt-3">
                                     <GoogleLoginButton />

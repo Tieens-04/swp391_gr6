@@ -42,7 +42,7 @@ function UserRegister() {
             if (res.status === 200) {
                 toast.success("Gửi mã OTP thành công!");
                 localStorage.setItem("registerEmail", data.email);
-                window.location.href = "/verify-otp";
+                window.location.href = "/auth/verify-otp";
             } else {
                 setErrorMessage("Gửi mã OTP thất bại!");
                 toast.error("Gửi mã OTP thất bại!");

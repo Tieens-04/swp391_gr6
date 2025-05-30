@@ -90,7 +90,7 @@ function OtpVerificationForm() {
             });
             if (res.status === 200) {
                 toast.success("Xác thực thành công!");
-                window.location.href = "/user-register-form";
+                window.location.href = "/auth/user-register-form";
             }
         } catch (error) {
             if (error.response && error.response.status === 401) {
