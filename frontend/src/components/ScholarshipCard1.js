@@ -6,7 +6,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../css/register.css';
 
 function ScholarshipCard1({ scholarship, onEdit, onDelete }) {
-    const [liked, setLiked] = useState(false);
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
@@ -44,12 +43,6 @@ function ScholarshipCard1({ scholarship, onEdit, onDelete }) {
                                 </h5>
                                 <p className="text-muted mb-2">{scholarship?.organizationName || 'Đơn vị tài trợ'}</p>
                             </div>
-                            <i
-                                className={`fa${liked ? 's' : 'r'} fa-heart fa-lg`}
-                                style={{ color: liked ? 'hotpink' : 'gray', cursor: 'pointer' }}
-                                onClick={() => setLiked(!liked)}
-                                title={liked ? "Bỏ yêu thích" : "Yêu thích"}
-                            ></i>
                         </div>
                         <hr />
                         <ul className="list-unstyled mb-0">

@@ -63,93 +63,103 @@ function CreateAdmin() {
     };
 
     return (
-        <div className="page-container">
+        <div className="d-flex flex-column min-vh-100">
             <Header />
-            <div className="login-container">
-                <div className="container login-form-container shadow rounded overflow-hidden">
+            <main className="flex-grow-1 d-flex align-items-center justify-content-center bg-light py-5">
+                <div className="container">
                     <div className="row justify-content-center">
-                        <div className="col-md-6 bg-white login-form-col">
-                            <form className="register-form" onSubmit={handleSubmit(onSubmit)}>
-                                <h2 className="text-center mb-3">
-                                    <i className="fas fa-user-shield me-2"></i>Tạo admin
-                                </h2>
-                                <p className="text-center text-muted mb-4">
-                                    Nhập thông tin để tạo tài khoản admin.
-                                </p>
+                        <div className="col-lg-6 col-md-8">
+                            <div className="card shadow-lg border-0 rounded-4">
+                                <div className="card-body p-5 bg-white">
+                                    <h3 className="text-center mb-4">
+                                        <i className="fas fa-user-shield me-2"></i>Tạo tài khoản Admin
+                                    </h3>
+                                    <p className="text-center text-muted mb-4">
+                                        Nhập thông tin để tạo tài khoản admin mới.
+                                    </p>
 
-                                {errorMessage && (
-                                    <div className="alert alert-danger">{errorMessage}</div>
-                                )}
+                                    {errorMessage && (
+                                        <div className="alert alert-danger">{errorMessage}</div>
+                                    )}
 
-                                <div className="mb-3">
-                                    <label>Email</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text"><i className="fas fa-envelope"></i></span>
-                                        <input
-                                            type="email"
-                                            className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                                            placeholder="Nhập email"
-                                            {...register("email")}
-                                            disabled={isLoading}
-                                        />
-                                        {errors.email && (
-                                            <div className="invalid-feedback">
-                                                {errors.email.message}
+                                    <form onSubmit={handleSubmit(onSubmit)}>
+                                        <div className="mb-3">
+                                            <label className="form-label">Email</label>
+                                            <div className="input-group">
+                                                <span className="input-group-text">
+                                                    <i className="fas fa-envelope"></i>
+                                                </span>
+                                                <input
+                                                    type="email"
+                                                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                                                    placeholder="Nhập email"
+                                                    {...register("email")}
+                                                    disabled={isLoading}
+                                                />
+                                                {errors.email && (
+                                                    <div className="invalid-feedback">
+                                                        {errors.email.message}
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
+                                        </div>
 
-                                <div className="mb-3">
-                                    <label>Mật khẩu</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text"><i className="fas fa-lock"></i></span>
-                                        <input
-                                            type="password"
-                                            className={`form-control ${errors.password ? "is-invalid" : ""}`}
-                                            placeholder="Nhập mật khẩu"
-                                            {...register("password")}
-                                            disabled={isLoading}
-                                        />
-                                        {errors.password && (
-                                            <div className="invalid-feedback">
-                                                {errors.password.message}
+                                        <div className="mb-3">
+                                            <label className="form-label">Mật khẩu</label>
+                                            <div className="input-group">
+                                                <span className="input-group-text">
+                                                    <i className="fas fa-lock"></i>
+                                                </span>
+                                                <input
+                                                    type="password"
+                                                    className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                                                    placeholder="Nhập mật khẩu"
+                                                    {...register("password")}
+                                                    disabled={isLoading}
+                                                />
+                                                {errors.password && (
+                                                    <div className="invalid-feedback">
+                                                        {errors.password.message}
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
+                                        </div>
 
-                                <div className="mb-3">
-                                    <label>Nhập lại mật khẩu</label>
-                                    <div className="input-group">
-                                        <span className="input-group-text"><i className="fas fa-lock"></i></span>
-                                        <input
-                                            type="password"
-                                            className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
-                                            placeholder="Nhập lại mật khẩu"
-                                            {...register("confirmPassword")}
-                                            disabled={isLoading}
-                                        />
-                                        {errors.confirmPassword && (
-                                            <div className="invalid-feedback">
-                                                {errors.confirmPassword.message}
+                                        <div className="mb-4">
+                                            <label className="form-label">Nhập lại mật khẩu</label>
+                                            <div className="input-group">
+                                                <span className="input-group-text">
+                                                    <i className="fas fa-lock"></i>
+                                                </span>
+                                                <input
+                                                    type="password"
+                                                    className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+                                                    placeholder="Nhập lại mật khẩu"
+                                                    {...register("confirmPassword")}
+                                                    disabled={isLoading}
+                                                />
+                                                {errors.confirmPassword && (
+                                                    <div className="invalid-feedback">
+                                                        {errors.confirmPassword.message}
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
+                                        </div>
 
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary login-form-button"
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? "Đang tạo..." : "Tạo admin"}
-                                </button>
-                            </form>
+                                        <button
+                                            type="submit"
+                                            className="btn btn-primary w-100 rounded-pill"
+                                            disabled={isLoading}
+                                        >
+                                            {isLoading ? "Đang tạo..." : "Tạo Admin"}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </main>
             <Footer />
             <ToastContainer />
         </div>
