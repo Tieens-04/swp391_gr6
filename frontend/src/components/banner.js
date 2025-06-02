@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const SuperBanner = () => {

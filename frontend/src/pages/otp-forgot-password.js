@@ -7,9 +7,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { verifyOtp } from "../services/authApi";
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../css/otp.css';
 
 const schema = yup.object().shape({

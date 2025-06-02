@@ -6,10 +6,6 @@ import Footer from '../components/Footer';
 import ScholarshipCard from '../components/ScholarshipCard';
 import FloatingContactButton from "../components/FloatingContactButton";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-
 import { getAllScholarships } from '../services/scholarshipApi';
 import { UserContext } from '../contexts/UserContext';
 
@@ -61,7 +57,9 @@ export default function Home() {
                         <div className="text-center my-5">Không có học bổng nào.</div>
                     ) : (
                         currentScholarships.map((scholarship) => (
-                            <ScholarshipCard key={scholarship.scholarshipId} scholarship={scholarship} />
+                            <div className="col-md-4 mb-4" key={scholarship.scholarshipId}>
+                                <ScholarshipCard scholarship={scholarship} />
+                            </div>
                         ))
                     )}
                 </div>
@@ -78,17 +76,17 @@ export default function Home() {
                             {Array.from({ length: totalPages }, (_, i) => (
                                 <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
                                     <button className="page-link" onClick={() => handlePageChange(i + 1)}>
-                                    {i + 1}
+                                        {i + 1}
+                                    </button>
+                                </li>
+                            ))}
+                            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                                <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+                                    &raquo;
                                 </button>
                             </li>
-                        ))}
-                        <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-                                &raquo;
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
+                        </ul>
+                    </nav>
                 )}
                 <FloatingContactButton />
             </main>

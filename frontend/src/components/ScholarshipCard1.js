@@ -1,8 +1,5 @@
 import { useState } from 'react';
 import "react-toastify/dist/ReactToastify.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../css/register.css';
 
 function ScholarshipCard1({ scholarship, onEdit, onDelete }) {

@@ -10,9 +10,6 @@ import Header from '../components/Header.js';
 import Footer from '../components/Footer.js';
 import GoogleLoginButton from '../components/GoogleLoginButton.js';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import "../css/register.css";
 
 const schema = yup.object().shape({

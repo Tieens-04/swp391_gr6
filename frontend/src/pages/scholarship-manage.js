@@ -4,10 +4,6 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScholarshipCard1 from '../components/ScholarshipCard1';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-
 import { getAllScholarships } from '../services/scholarshipApi';
 import { UserContext } from '../contexts/UserContext';
 

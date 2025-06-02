@@ -9,10 +9,6 @@ import Footer from '../components/Footer';
 import UserCard from '../components/UserCard';
 import UserChart from "../components/UserChart";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-
 function UserManage() {
     const { user: contextUser } = useContext(UserContext);
     const [userData, setUserData] = useState([]);

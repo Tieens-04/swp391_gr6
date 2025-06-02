@@ -11,9 +11,6 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import GoogleLoginButton from "../components/GoogleLoginButton";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../css/Login.css';
 
 const schema = yup.object().shape({
@@ -71,7 +68,7 @@ function LoginForm() {
             <Header />
             <main className="login-container flex-grow-1">
                 <div className="container my-5">
-                    <div className="row shadow rounded overflow-hidden login-form-container">
+                    <div className="col shadow rounded overflow-hidden login-form-container">
                         {/* Cột hình ảnh */}
                         <div className="col-md-6 d-none d-md-block login-image-col">
                             <img

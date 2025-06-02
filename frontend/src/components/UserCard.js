@@ -1,7 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-
 function UserCard({ user, onBan }) {
     return (
         <div className="card shadow-sm border-0 rounded-4 mb-4">
