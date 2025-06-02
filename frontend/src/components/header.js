@@ -1,8 +1,5 @@
 import React, { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 
 export default function Header() {
     const { user, logout } = useContext(UserContext);
