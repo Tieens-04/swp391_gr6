@@ -17,6 +17,7 @@ import com.swp391_g6.demo.dto.LoginRequest;
 import com.swp391_g6.demo.dto.OtpVerificationRequest;
 import com.swp391_g6.demo.entity.User;
 import com.swp391_g6.demo.service.AuthService;
+import com.swp391_g6.demo.service.SeekerService;
 import com.swp391_g6.demo.service.GoogleAuthService;
 import com.swp391_g6.demo.util.JwtUtil;
 
@@ -29,6 +30,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private SeekerService seekerService;
 
     @Autowired
     private GoogleAuthService googleAuthService;
@@ -56,8 +60,7 @@ public class AuthController {
     public ResponseEntity<String> createStaff(@RequestBody User user) {
         authService.createStaff(
                 user.getEmail(),
-                user.getPasswordHash()
-        );
+                user.getPasswordHash());
         return ResponseEntity.status(HttpStatus.CREATED).body("Staff created successfully");
     }
 
@@ -66,8 +69,7 @@ public class AuthController {
     public ResponseEntity<String> createAdmin(@RequestBody User user) {
         authService.createAdmin(
                 user.getEmail(),
-                user.getPasswordHash()
-        );
+                user.getPasswordHash());
         return ResponseEntity.status(HttpStatus.CREATED).body("Admin created successfully");
     }
 
@@ -80,10 +82,10 @@ public class AuthController {
                 user.getDateOfBirth(),
                 user.getPhone(),
                 user.getGender(),
-                user.getPasswordHash()
-        );
-        System.out.println("User registered: " + user.getDateOfBirth());
-        String jwt = jwtUtil.generateToken(user);
+                user.getPasswordHash());
+        User createdUser = authService.findByEmail(user.getEmail());
+        seekerService.createSeekerProfile(createdUser);
+        String jwt = jwtUtil.generateToken(createdUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("token", jwt));
     }
 
@@ -103,6 +105,7 @@ public class AuthController {
                 authService.createUser(user.getName(), user.getEmail(), null, null, null, "GOOGLE_USER");
             }
             user = authService.findByEmail(email);
+            seekerService.createSeekerProfile(user);
             String jwt = jwtUtil.generateToken(user);
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("token", jwt));
         } catch (Exception e) {
