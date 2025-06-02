@@ -6,8 +6,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { sendOtp } from "../services/authApi";
 
-import Header from '../components/header.js';
-import Footer from '../components/footer.js';
+import Header from '../components/Header.js';
+import Footer from '../components/Footer.js';
 import GoogleLoginButton from '../components/GoogleLoginButton.js';
 
 import 'bootstrap/dist/css/bootstrap.min.css';

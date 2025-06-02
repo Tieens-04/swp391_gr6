@@ -7,8 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../contexts/UserContext";
 import { login as loginUser } from "../services/authApi";
 
-import Header from '../components/header';
-import Footer from '../components/footer';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import GoogleLoginButton from "../components/GoogleLoginButton";
 
 import 'bootstrap/dist/css/bootstrap.min.css';

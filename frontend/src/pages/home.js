@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
-import Banner from '../components/banner';
-import Header from '../components/header';
-import Footer from '../components/footer';
+import Banner from '../components/Banner';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import ScholarshipCard from '../components/ScholarshipCard';
+import FloatingContactButton from "../components/FloatingContactButton";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -89,6 +90,7 @@ export default function Home() {
                     </ul>
                 </nav>
                 )}
+                <FloatingContactButton />
             </main>
 
             <Footer />
