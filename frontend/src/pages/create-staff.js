@@ -6,8 +6,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { createStaff } from "../services/authApi";
 
-import Header from '../components/header.js';
-import Footer from '../components/footer.js';
+import Header from '../components/Header.js';
+import Footer from '../components/Footer.js';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
