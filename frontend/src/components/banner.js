@@ -3,10 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const SuperBanner = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(true);
-  
-  const images = [
+  const realImages = [
     {
       src: "/images/banner/sl1.jpg",
       title: 'Du học Mỹ 2025',
@@ -27,49 +24,50 @@ const SuperBanner = () => {
     }
   ];
 
+  const images = [...realImages, realImages[0]]; // Clone ảnh đầu
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(true);
+
   const goToNext = useCallback(() => {
     setIsTransitioning(true);
-    setCurrentIndex(prev => {
-      if (prev >= images.length - 1) {
-        // Khi đến ảnh cuối, reset về 0 không animation
-        setTimeout(() => {
-          setIsTransitioning(false);
-          setCurrentIndex(0);
-        }, 50);
-        return prev;
-      }
-      return prev + 1;
-    });
-  }, [images.length]);
+    setCurrentIndex(prev => prev + 1);
+  }, []);
 
   const goToPrev = useCallback(() => {
     setIsTransitioning(true);
-    setCurrentIndex(prev => {
-      if (prev <= 0) {
-        // Khi ở ảnh đầu, nhảy tới ảnh cuối không animation
-        setTimeout(() => {
-          setIsTransitioning(false);
-          setCurrentIndex(images.length - 1);
-        }, 50);
-        return 0;
-      }
-      return prev - 1;
-    });
-  }, [images.length]);
+    if (currentIndex === 0) {
+      setCurrentIndex(realImages.length - 1);
+    } else {
+      setCurrentIndex(prev => prev - 1);
+    }
+  }, [currentIndex, realImages.length]);
 
   useEffect(() => {
     const interval = setInterval(goToNext, 4000);
     return () => clearInterval(interval);
   }, [goToNext]);
 
+  useEffect(() => {
+    if (currentIndex === images.length - 1) {
+      // Nếu tới ảnh clone → reset về ảnh 0 không transition
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setCurrentIndex(0);
+      }, 800); // Khớp với thời gian transition
+    } else {
+      setIsTransitioning(true);
+    }
+  }, [currentIndex, images.length]);
+
   return (
-    <div className="position-relative" style={{ 
-      height: '400px', 
+    <div className="position-relative" style={{
+      height: '400px',
       overflow: 'hidden',
       width: '100%'
     }}>
       {/* Slides container */}
-      <div 
+      <div
         className="d-flex h-100"
         style={{
           width: `${images.length * 100}%`,
@@ -101,10 +99,10 @@ const SuperBanner = () => {
       </div>
 
       {/* Navigation buttons */}
-      <button 
+      <button
         className="position-absolute top-50 start-0 translate-middle-y btn btn-dark rounded-circle p-3 ms-3"
         onClick={goToPrev}
-        style={{ 
+        style={{
           zIndex: 1,
           opacity: 0.7,
           transition: 'opacity 0.3s',
@@ -115,11 +113,11 @@ const SuperBanner = () => {
       >
         <FaChevronLeft size={20} />
       </button>
-      
-      <button 
+
+      <button
         className="position-absolute top-50 end-0 translate-middle-y btn btn-dark rounded-circle p-3 me-3"
         onClick={goToNext}
-        style={{ 
+        style={{
           zIndex: 1,
           opacity: 0.7,
           transition: 'opacity 0.3s',
@@ -133,17 +131,17 @@ const SuperBanner = () => {
 
       {/* Slide indicators */}
       <div className="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex">
-        {images.map((_, index) => (
+        {realImages.map((_, index) => (
           <button
             key={index}
-            className={`btn btn-sm mx-1 rounded-circle ${currentIndex === index ? 'btn-primary' : 'btn-secondary'}`}
+            className={`btn btn-sm mx-1 rounded-circle ${currentIndex === index || (currentIndex === images.length - 1 && index === 0) ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => {
               setIsTransitioning(true);
               setCurrentIndex(index);
             }}
-            style={{ 
-              width: '10px', 
-              height: '10px', 
+            style={{
+              width: '10px',
+              height: '10px',
               padding: 0,
               transition: 'background-color 0.3s'
             }}
