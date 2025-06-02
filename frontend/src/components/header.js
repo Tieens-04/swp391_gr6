@@ -31,7 +31,7 @@ export default function Header() {
                                 <a className="nav-link text-dark" href="/about">ABOUT</a>
                             </li>
                             <li className="nav-item mx-3">
-                                <a className="nav-link text-dark" href="/scholarships">FIND SCHOLARSHIPS</a>
+                                <a className="nav-link text-dark" href="/search">FIND SCHOLARSHIPS</a>
                             </li>
                             <li className="nav-item mx-3">
                                 <a className="nav-link text-dark" href="/services">SERVICES</a>
