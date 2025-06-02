@@ -9,20 +9,21 @@ export default function Header() {
 
     return (
         <header className="bg-white text-dark shadow-sm py-2">
-            <nav className="navbar navbar-expand-lg navbar-light">
+            <nav className="navbar navbar-expand-lg bg-white py-0">
                 <div className="container">
                     {/* Logo  */}
                     <a className="navbar-brand" href="/">
                         <img
-                            src="/images/hb1.png"
+                            src="/images/logo.png"
                             alt="Heatwave Scholarship"
-                            style={{ height: '40px' }}
+                            style={{ height: '80px' }} 
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "/images/placeholder-logo.png";
                             }}
                         />
                     </a>
+
 
                     {/* Menu chính giữa */}
                     <div className="mx-auto">
@@ -52,8 +53,7 @@ export default function Header() {
                             >
                                 <i className="fas fa-user-circle fs-4"></i>
                             </button>
-                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                                <li><a className="dropdown-item" href="/contact">Contact</a></li>
+                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">                               
                                 {!user.isLoggedIn ? (
                                     <>
                                         <li><a className="dropdown-item" href="/auth/login">Login</a></li>
