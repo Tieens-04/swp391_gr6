@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { UserProvider } from "./contexts/UserContext";
 import AuthRoute from "./routes/authRoute";
 import UserRoute from "./routes/userRoute";
+import SeekerRoute from "./routes/seekerRoute";
 import ScholarshipRoute from "./routes/scholarshipRoute";
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
                     <Routes>
                         <Route path="/auth/*" element={<AuthRoute />} />
                         <Route path="/admin/*" element={<UserRoute />} />
+                        <Route path="/seeker/*" element={<SeekerRoute />} />
                         <Route path="/*" element={<ScholarshipRoute />} />
                         {/* Thêm các route khác ở đây nếu có */}
                     </Routes>

@@ -65,9 +65,10 @@ export default function Header() {
                                             <>
                                                 <li><a className="dropdown-item" href="/admin/manage-users">Manage Users</a></li>
                                                 <li><a className="dropdown-item" href="/manage-scholarships">Manage Scholarships</a></li>
+                                                <li><a className="dropdown-item" href="/admin/dashboard">Admin Dashboard</a></li>
                                             </>
                                         )}
-                                        <li><a className="dropdown-item" href="/profile">Profile</a></li>
+                                        <li><a className="dropdown-item" href="/seeker/user-profile">Profile</a></li>
                                         <li>
                                             <a
                                                 className="dropdown-item text-danger"

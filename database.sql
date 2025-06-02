@@ -170,6 +170,8 @@ CREATE TABLE seeker_profiles (
     FOREIGN KEY (assigned_staff_id) REFERENCES users(user_id)
 );
 
+DESC seeker_profiles;
+
 -- ===================================================================
 -- SCHOLARSHIP MANAGEMENT TABLES
 -- ===================================================================
@@ -231,7 +233,7 @@ INSERT INTO organizations (
 ('ORG0000018', 'Fulbright Commission', 'The Fulbright Program is the flagship international educational exchange program sponsored by the U.S. government.', NULL, 'https://res.cloudinary.com/dht9hd5ap/image/upload/v1748270015/fulbright_logo.png', NULL, NULL, 'United States', 'Government', TRUE),
 ('ORG0000019', 'DAAD Germany', 'The German Academic Exchange Service is the largest funding organisation in the world supporting international exchange of students and researchers.', NULL, 'https://res.cloudinary.com/dht9hd5ap/image/upload/v1748270016/daad_logo.png', NULL, NULL, 'Germany', 'Government', TRUE);
 
-DESC users;
+DESC scholarship_categories;
 
 DESC organizations;
 
