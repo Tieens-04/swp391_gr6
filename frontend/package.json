@@ -32,7 +32,10 @@
     "start": "react-scripts start --no-source-maps",
     "build": "react-scripts build --no-source-maps",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "concurrently \"npm:start-frontend\" \"npm:start-backend\"",
+    "start-frontend": "react-scripts start --no-source-maps",
+    "start-backend": "cd ../demo && mvnw.cmd spring-boot:run"
   },
   "eslintConfig": {
     "extends": [
@@ -51,5 +54,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

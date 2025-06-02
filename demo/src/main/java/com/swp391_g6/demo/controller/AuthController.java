@@ -55,11 +55,7 @@ public class AuthController {
     @PostMapping("/create-staff")
     public ResponseEntity<String> createStaff(@RequestBody User user) {
         authService.createStaff(
-                user.getName(),
                 user.getEmail(),
-                user.getDateOfBirth(),
-                user.getPhone(),
-                user.getGender(),
                 user.getPasswordHash()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body("Staff created successfully");
@@ -69,11 +65,7 @@ public class AuthController {
     @PostMapping("/create-admin")
     public ResponseEntity<String> createAdmin(@RequestBody User user) {
         authService.createAdmin(
-                user.getName(),
                 user.getEmail(),
-                user.getDateOfBirth(),
-                user.getPhone(),
-                user.getGender(),
                 user.getPasswordHash()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body("Admin created successfully");

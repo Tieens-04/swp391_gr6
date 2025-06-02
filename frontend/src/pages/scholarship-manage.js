@@ -16,6 +16,10 @@ function ScholarshipManage() {
     const [loading, setLoading] = useState(true);
     const { user } = useContext(UserContext);
 
+    // Thêm state cho phân trang
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
     useEffect(() => {
         const fetchScholarships = async () => {
             setLoading(true);
@@ -36,6 +40,18 @@ function ScholarshipManage() {
         fetchScholarships();
     }, [user]);
 
+    // Tính toán các học bổng sẽ hiển thị
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentScholarships = scholarships.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(scholarships.length / itemsPerPage);
+
+    // Hàm chuyển trang
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <>
             <Header />
@@ -47,7 +63,7 @@ function ScholarshipManage() {
                     ) : scholarships.length === 0 ? (
                         <div className="text-center my-5">Không có học bổng nào.</div>
                     ) : (
-                        scholarships.map((scholarship) => (
+                        currentScholarships.map((scholarship) => (
                             <ScholarshipCard1
                                 key={scholarship.scholarshipId}
                                 scholarship={scholarship}
@@ -55,6 +71,30 @@ function ScholarshipManage() {
                         ))
                     )}
                 </div>
+                {/* Phân trang */}
+                {!loading && scholarships.length > itemsPerPage && (
+                    <nav className="mt-4">
+                        <ul className="pagination justify-content-center">
+                            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                                <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                                    &laquo;
+                                </button>
+                            </li>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                                        {i + 1}
+                                    </button>
+                                </li>
+                            ))}
+                            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                                <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+                                    &raquo;
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                )}
             </main>
             <Footer />
         </>
