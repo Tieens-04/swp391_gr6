@@ -12,6 +12,14 @@ export const register = async (data) => {
     return await axiosInstance.post("/auth/register", data);
 };
 
+export const createStaff = async (data) => {
+    return await axiosInstance.post("/auth/create-staff", data);
+}
+
+export const createAdmin = async (data) => {
+    return await axiosInstance.post("/auth/create-admin", data);
+}
+
 export const googleLogin = async (data) => {
     return await axiosInstance.post("/auth/google", data);
 }
