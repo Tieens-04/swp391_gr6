@@ -67,8 +67,8 @@ function LoginForm() {
         <div className="d-flex flex-column min-vh-100">
             <Header />
             <main className="login-container flex-grow-1">
-                <div className="container my-5">
-                    <div className="col shadow rounded overflow-hidden login-form-container">
+                <div className="container login-form-container shadow rounded overflow-hidden">
+                    <div className="row">
                         {/* Cột hình ảnh */}
                         <div className="col-md-6 d-none d-md-block login-image-col">
                             <img
