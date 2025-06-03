@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+
 import '../css/Search.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScholarshipCard from '../components/ScholarshipCard';
+
 import { getAllScholarships } from '../services/scholarshipApi';
 
 const SearchSchool = () => {
@@ -244,10 +246,11 @@ const SearchSchool = () => {
                         >
                             Không có học bổng nào phù hợp.
                         </div>
-
                     ) : (
                         filteredScholarships.map((scholarship) => (
-                            <ScholarshipCard key={scholarship.scholarshipId} scholarship={scholarship} />
+                            <div className="col-md-4 mb-3" key={scholarship.scholarshipId}>
+                                <ScholarshipCard scholarship={scholarship} />
+                            </div>
                         ))
                     )}
                 </div>
