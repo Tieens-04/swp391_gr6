@@ -100,3 +100,36 @@
   background-color: #95a5a6;
   cursor: not-allowed;
 }
+
+/* Thêm vào otp.css hoặc user-profile.css */
+.otp-modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.otp-modal {
+    background: #fff;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 100%;
+    padding: 24px 20px 20px 20px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+    position: relative;
+}
+.otp-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.otp-modal-header .close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
