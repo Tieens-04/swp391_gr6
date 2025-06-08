@@ -1,15 +1,18 @@
 import { useEffect, useState, useContext } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { UserContext } from "../contexts/UserContext";
 import { seekerProfile, sendUpdateSeekerProfileOtp, verifyUpdateSeekerProfileOtp, seekerProfileUpdate } from "../services/seekerApi";
 import { sendUpdateUserProfileOtp, verifyUpdateUserProfileOtp, userProfileUpdate } from "../services/userApi";
+import { changePassword } from "../services/authApi";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import OtpModal from "../components/OtpModal";
+import ChangePasswordModal from "../components/ChangePasswordModal";
 
 import "../css/user-profile.css";
 
@@ -78,6 +81,10 @@ function UserProfile() {
     const [otpLoading, setOtpLoading] = useState(false);
     const [otpError, setOtpError] = useState("");
     const [pendingUpdateType, setPendingUpdateType] = useState("");
+
+    const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+    const [changePasswordLoading, setChangePasswordLoading] = useState(false);
+    const [changePasswordError, setChangePasswordError] = useState("");
 
     const {
         register,
@@ -194,6 +201,27 @@ function UserProfile() {
         setOtpLoading(false);
     };
 
+    // Đổi mật khẩu
+    const handleChangePassword = async (data) => {
+        setChangePasswordLoading(true);
+        setChangePasswordError("");
+        try {
+            const res = await changePassword({
+                email: profile.email,
+                oldPassword: data.old_password, // Đúng tên trường backend yêu cầu
+                newPassword: data.new_password, // Đúng tên trường backend yêu cầu
+                token: user.accessToken
+            });
+            if (res.status === 200) {
+                toast.success("Đổi mật khẩu thành công!");
+                setShowChangePasswordModal(false);
+            }
+        } catch (err) {
+            setChangePasswordError("Đổi mật khẩu thất bại. Vui lòng thử lại.");
+        }
+        setChangePasswordLoading(false);
+    };
+
     return (
         <div>
             <Header />
@@ -288,6 +316,18 @@ function UserProfile() {
                                                 <span className="text-danger">{errors.gender?.message}</span>
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <td><b>Password:</b></td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-warning btn-sm"
+                                                    onClick={() => setShowChangePasswordModal(true)}
+                                                >
+                                                    Đổi mật khẩu
+                                                </button>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -332,6 +372,18 @@ function UserProfile() {
                                                 : profile.gender === "female"
                                                     ? "Nữ"
                                                     : "Chưa cập nhật"}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>Password:</b></td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className="btn btn-warning btn-sm"
+                                                onClick={() => setShowChangePasswordModal(true)}
+                                            >
+                                                Đổi mật khẩu
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -550,6 +602,13 @@ function UserProfile() {
                 onSubmitOtp={handleSubmitOtp}
                 isLoading={otpLoading}
                 errorMessage={otpError}
+            />
+            <ChangePasswordModal
+                show={showChangePasswordModal}
+                onClose={() => setShowChangePasswordModal(false)}
+                onSubmit={handleChangePassword}
+                isLoading={changePasswordLoading}
+                errorMessage={changePasswordError}
             />
             <Footer />
         </div>

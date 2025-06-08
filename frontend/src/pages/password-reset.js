@@ -5,8 +5,10 @@ import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { resetPassword } from "../services/authApi";
+
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+
 import '../css/pass.css'
 
 const schema = yup.object().shape({
