@@ -8,5 +8,4 @@ import com.swp391_g6.demo.entity.User;
 public interface SeekerRepository extends JpaRepository<Seeker, String> {
 
     Seeker findByUser(User user);
-
 }

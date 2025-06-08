@@ -27,4 +27,12 @@ public class EmailUtil {
         javaMailSender.send(message);
     }
 
+    public void sendUpdateProfileEmail(String toEmail, String otp) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Xác thực cập nhật thông tin cá nhân");
+        message.setText("Mã xác thực của bạn là: " + otp);
+        javaMailSender.send(message);
+    }
+
 }
