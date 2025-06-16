@@ -19,11 +19,18 @@ const SearchSchool = () => {
     const [selectedFields, setSelectedFields] = useState([]);
     const [selectedCities, setSelectedCities] = useState([]);
 
-    const [schoolRanks] = useState([80, 50, 10, 5, 1]);
-    const [selectedSchoolRanks, setSelectedSchoolRanks] = useState([]);
-
     const [costOptions] = useState([100000, 80000, 50000]);
     const [selectedCost, setSelectedCost] = useState([]);
+
+    // Thêm filter cho language requirements
+    const [toeflOptions] = useState([60, 80, 100]);
+    const [selectedToefl, setSelectedToefl] = useState([]);
+
+    const [ieltsOptions] = useState([6.0, 7.0, 8.0]);
+    const [selectedIelts, setSelectedIelts] = useState([]);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 12;
 
     useEffect(() => {
         const fetchScholarships = async () => {
@@ -67,7 +74,6 @@ const SearchSchool = () => {
         fetchScholarships();
     }, []);
 
-    // Helpers để chọn/bỏ chọn checkbox đa lựa chọn
     const toggleSelection = (item, selectedItems, setSelectedItems) => {
         if (selectedItems.includes(item)) {
             setSelectedItems(selectedItems.filter((i) => i !== item));
@@ -87,14 +93,6 @@ const SearchSchool = () => {
         }
     };
 
-    const filterBySchoolRank = (scholarship) => {
-        if (selectedSchoolRanks.length === 0) return true;
-        const orgRank = Number(scholarship.organizationWorldRank);
-        if (isNaN(orgRank)) return false;
-        const maxSelectedRank = Math.max(...selectedSchoolRanks);
-        return orgRank <= maxSelectedRank;
-    };
-
     const filterByCities = (scholarship) => {
         if (selectedCities.length === 0) return true;
         try {
@@ -110,28 +108,62 @@ const SearchSchool = () => {
         if (selectedCost.length === 0) return true;
         const amount = Number(scholarship.amount);
         if (isNaN(amount)) return false;
-        // Chọn cost nhỏ nhất trong những cost được chọn để so sánh
         const maxSelectedCost = Math.min(...selectedCost);
         return amount <= maxSelectedCost;
+    };
+
+    // Filter cho language requirements
+    const filterByLanguageRequirements = (scholarship) => {
+        let pass = true;
+
+        try {
+            const lang = JSON.parse(scholarship.languageRequirements);
+
+            if (selectedToefl.length > 0 && lang.toefl) {
+                const minSelectedToefl = Math.min(...selectedToefl);
+                if (lang.toefl > minSelectedToefl) pass = false;
+            }
+
+            if (selectedIelts.length > 0 && lang.ielts) {
+                const minSelectedIelts = Math.min(...selectedIelts);
+                if (lang.ielts > minSelectedIelts) pass = false;
+            }
+        } catch {
+            // Nếu không parse được thì bỏ qua filter này
+        }
+
+        return pass;
     };
 
     const applyFilter = () => {
         const filtered = scholarships.filter(
             (s) =>
                 filterByFields(s) &&
-                filterBySchoolRank(s) &&
                 filterByCities(s) &&
-                filterByCost(s)
+                filterByCost(s) &&
+                filterByLanguageRequirements(s)
         );
         setFilteredScholarships(filtered);
+        setCurrentPage(1);
         setShowFilter(false);
     };
 
     const clearFilters = () => {
         setSelectedFields([]);
-        setSelectedSchoolRanks([]);
         setSelectedCities([]);
         setSelectedCost([]);
+        setSelectedToefl([]);
+        setSelectedIelts([]);
+    };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentScholarships = filteredScholarships.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredScholarships.length / itemsPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
@@ -141,7 +173,7 @@ const SearchSchool = () => {
                 <p className="breadcrumb">Heatwave / Tìm học bổng cho bạn ngay nào</p>
                 <h2 className="fw-bold mb-2">Học bổng cho bạn</h2>
                 <p className="text-muted">
-                    Khám phá các học bổng từ các trường đại học hàng đầu bên dưới. Sử dụng bộ lọc để tìm kiếm theo lĩnh vực, school rank, điểm đến và nhiều tiêu chí khác
+                    Khám phá các học bổng từ các trường đại học hàng đầu bên dưới. Sử dụng bộ lọc để tìm kiếm theo lĩnh vực, ngôn ngữ, thành phố và chi phí
                 </p>
 
                 <div className="d-flex gap-2 mb-3">
@@ -154,38 +186,15 @@ const SearchSchool = () => {
                     <div className="filter-panel shadow-sm p-4 mb-3">
                         <h5 className="mb-3 fw-bold">Lọc các học bổng theo</h5>
                         <div className="row">
+
                             <div className="col-md-3">
                                 <p className="fw-semibold">Lĩnh vực giảng dạy</p>
                                 {fields.map((field, i) => (
                                     <div className="form-check" key={i}>
-                                        <input
-                                            className="form-check-input"
-                                            type="checkbox"
-                                            id={`field-${i}`}
+                                        <input className="form-check-input" type="checkbox" id={`field-${i}`}
                                             checked={selectedFields.includes(field)}
-                                            onChange={() => toggleSelection(field, selectedFields, setSelectedFields)}
-                                        />
-                                        <label className="form-check-label" htmlFor={`field-${i}`}>
-                                            {field}
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="col-md-3">
-                                <p className="fw-semibold">Xếp hạng tổ chức</p>
-                                {schoolRanks.map((rank, i) => (
-                                    <div className="form-check" key={i}>
-                                        <input
-                                            className="form-check-input"
-                                            type="checkbox"
-                                            id={`rank-${i}`}
-                                            checked={selectedSchoolRanks.includes(rank)}
-                                            onChange={() => toggleSelection(rank, selectedSchoolRanks, setSelectedSchoolRanks)}
-                                        />
-                                        <label className="form-check-label" htmlFor={`rank-${i}`}>
-                                            Top {rank}
-                                        </label>
+                                            onChange={() => toggleSelection(field, selectedFields, setSelectedFields)} />
+                                        <label className="form-check-label" htmlFor={`field-${i}`}>{field}</label>
                                     </div>
                                 ))}
                             </div>
@@ -194,37 +203,54 @@ const SearchSchool = () => {
                                 <p className="fw-semibold">Thành phố</p>
                                 {cities.map((city, i) => (
                                     <div className="form-check" key={i}>
-                                        <input
-                                            className="form-check-input"
-                                            type="checkbox"
-                                            id={`city-${i}`}
+                                        <input className="form-check-input" type="checkbox" id={`city-${i}`}
                                             checked={selectedCities.includes(city)}
-                                            onChange={() => toggleSelection(city, selectedCities, setSelectedCities)}
-                                        />
-                                        <label className="form-check-label" htmlFor={`city-${i}`}>
-                                            {city}
-                                        </label>
+                                            onChange={() => toggleSelection(city, selectedCities, setSelectedCities)} />
+                                        <label className="form-check-label" htmlFor={`city-${i}`}>{city}</label>
                                     </div>
                                 ))}
                             </div>
 
                             <div className="col-md-3">
-                                <p className="fw-semibold">Chi phí học bổng (≤)</p>
+                                <p className="fw-semibold">Chi phí học bổng</p>
                                 {costOptions.map((cost, i) => (
                                     <div className="form-check" key={i}>
-                                        <input
-                                            className="form-check-input"
-                                            type="checkbox"
-                                            id={`cost-${i}`}
+                                        <input className="form-check-input" type="checkbox" id={`cost-${i}`}
                                             checked={selectedCost.includes(cost)}
-                                            onChange={() => toggleSelection(cost, selectedCost, setSelectedCost)}
-                                        />
+                                            onChange={() => toggleSelection(cost, selectedCost, setSelectedCost)} />
                                         <label className="form-check-label" htmlFor={`cost-${i}`}>
                                             {cost.toLocaleString('vi-VN')} GBP
                                         </label>
                                     </div>
                                 ))}
                             </div>
+
+                            <div className="col-md-3">
+                                <p className="fw-semibold">Yêu cầu TOEFL</p>
+                                {toeflOptions.map((score, i) => (
+                                    <div className="form-check" key={i}>
+                                        <input className="form-check-input" type="checkbox" id={`toefl-${i}`}
+                                            checked={selectedToefl.includes(score)}
+                                            onChange={() => toggleSelection(score, selectedToefl, setSelectedToefl)} />
+                                        <label className="form-check-label" htmlFor={`toefl-${i}`}>
+                                            {score} điểm
+                                        </label>
+                                    </div>
+                                ))}
+
+                                <p className="fw-semibold mt-3">Yêu cầu IELTS</p>
+                                {ieltsOptions.map((score, i) => (
+                                    <div className="form-check" key={i}>
+                                        <input className="form-check-input" type="checkbox" id={`ielts-${i}`}
+                                            checked={selectedIelts.includes(score)}
+                                            onChange={() => toggleSelection(score, selectedIelts, setSelectedIelts)} />
+                                        <label className="form-check-label" htmlFor={`ielts-${i}`}>
+                                            {score.toFixed(1)}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+
                         </div>
 
                         <div className="mt-4 d-flex gap-2">
@@ -239,21 +265,42 @@ const SearchSchool = () => {
                 )}
 
                 <div className="row">
-                    {filteredScholarships.length === 0 ? (
-                        <div
-                            className="text-center my-5"
-                            style={{ fontWeight: 'bold', color: '#c2185b' }}
-                        >
+                    {currentScholarships.length === 0 ? (
+                        <div className="text-center my-5" style={{ fontWeight: 'bold', color: '#c2185b' }}>
                             Không có học bổng nào phù hợp.
                         </div>
                     ) : (
-                        filteredScholarships.map((scholarship) => (
+                        currentScholarships.map((scholarship) => (
                             <div className="col-md-4 mb-3" key={scholarship.scholarshipId}>
                                 <ScholarshipCard scholarship={scholarship} />
                             </div>
                         ))
                     )}
                 </div>
+
+                {filteredScholarships.length > itemsPerPage && (
+                    <nav className="mt-4">
+                        <ul className="pagination justify-content-center">
+                            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                                <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                                    &laquo;
+                                </button>
+                            </li>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                                        {i + 1}
+                                    </button>
+                                </li>
+                            ))}
+                            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                                <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+                                    &raquo;
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                )}
             </div>
             <Footer />
         </>

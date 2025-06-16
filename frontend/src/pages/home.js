@@ -5,6 +5,12 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScholarshipCard from '../components/ScholarshipCard';
 import FloatingContactButton from "../components/FloatingContactButton";
+import Countries from '../components/Countries';
+import Know from '../components/Know';
+import Choose from '../components/Choose';
+import WhyChoose from '../components/Whychoose';
+import RegisterForm from '../components/Register-book';
+import FlywireAd from '../components/FlywireAd';
 
 import { getAllScholarships } from '../services/scholarshipApi';
 import { UserContext } from '../contexts/UserContext';
@@ -48,6 +54,12 @@ export default function Home() {
         <>
             <Header />
             <Banner />
+            <RegisterForm/>
+            <FlywireAd/>
+            <WhyChoose/>
+            <Know/>
+            <Countries/>
+            <Choose/>
             <main className="container mt-5">
                 <h2 className="text-center">Available Scholarships</h2>
                 <div className="row">
