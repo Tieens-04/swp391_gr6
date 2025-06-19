@@ -150,9 +150,21 @@ public class AuthService {
         emailUtil.sendOtpEmail(email, otp);
     }
 
-    public void updatePassword(String email, String newPassword) {
+    public void resetPassword(String email, String newPassword) {
         User user = userRepository.findByEmail(email);
         if (user != null) {
+            String password_hash = passwordEncoder.encode(newPassword);
+            user.setPasswordHash(password_hash);
+            Timestamp now = Timestamp
+                    .from(java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Bangkok")).toInstant());
+            user.setUpdatedAt(now);
+            userRepository.save(user);
+        }
+    }
+
+    public void changePassword(String email, String oldPassword, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        if (user != null && passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
             String password_hash = passwordEncoder.encode(newPassword);
             user.setPasswordHash(password_hash);
             Timestamp now = Timestamp
