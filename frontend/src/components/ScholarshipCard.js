@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import "react-toastify/dist/ReactToastify.css";
 import '../css/register.css';
 
@@ -13,6 +14,7 @@ import '../css/register.css';
  */
 function ScholarshipCard({ scholarship }) {
     const [liked, setLiked] = useState(false);
+    const navigate = useNavigate();
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
@@ -85,7 +87,12 @@ function ScholarshipCard({ scholarship }) {
             </ul>
 
             <div className="d-grid gap-2">
-                <button className="btn btn-outline-dark rounded-pill">
+                <button
+                    className="btn btn-outline-dark rounded-pill"
+                    onClick={() => navigate(`/detailRoute/${scholarship.scholarshipId}`, {
+                        state: { scholarship } // ✅ truyền toàn bộ object
+                    })}
+                >
                     Xem chi tiết
                 </button>
             </div>

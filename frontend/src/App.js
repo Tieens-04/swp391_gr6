@@ -5,6 +5,7 @@ import AuthRoute from "./routes/authRoute";
 import UserRoute from "./routes/userRoute";
 import SeekerRoute from "./routes/seekerRoute";
 import ScholarshipRoute from "./routes/scholarshipRoute";
+import DetailRoute from "./routes/detailRoute";
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                         <Route path="/admin/*" element={<UserRoute />} />
                         <Route path="/seeker/*" element={<SeekerRoute />} />
                         <Route path="/*" element={<ScholarshipRoute />} />
+                        <Route path="/detailRoute/*" element={<DetailRoute />} />
                         {/* Thêm các route khác ở đây nếu có */}
                     </Routes>
                 </Router>
