@@ -19,19 +19,7 @@ const reasons = [
         title: 'Mạng lưới toàn cầu, hỗ trợ cá nhân hóa:',
         text: 'Với 210 văn phòng và 2.200 tư vấn viên tại 35 quốc gia, IDP cam kết hỗ trợ hành trình của bạn.',
         link: 'Liên hệ ngay',
-    },
-    {
-        icon: <FaCheckCircle size={28} />,
-        title: 'Đồng sở hữu kỳ thi IELTS:',
-        text: 'IELTS - Bài kiểm tra tiếng Anh hàng đầu thế giới, được hơn 12.500 tổ chức công nhận.',
-        link: 'Đăng ký thi IELTS',
-    },
-    {
-        icon: <FaUniversity size={28} />,
-        title: 'Đối tác của hơn 800+ trường Đại học hàng đầu:',
-        text: 'Heatwave là đối tác uy tín của hơn 800 trường Đại học hàng đầu trên toàn thế giới.',
-        link: 'Tìm kiếm ngay',
-    },
+    }
 ];
 
 export default function WhyChoose() {

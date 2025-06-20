@@ -47,7 +47,7 @@ export default function Home() {
     // Hàm chuyển trang
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 5050, behavior: 'smooth' });
     };
 
     return (
@@ -59,7 +59,7 @@ export default function Home() {
             <WhyChoose/>
             <Know/>
             <Countries/>
-            <Choose/>
+            <Choose/>          
             <main className="container mt-5">
                 <h2 className="text-center">Available Scholarships</h2>
                 <div className="row">
@@ -101,8 +101,7 @@ export default function Home() {
                     </nav>
                 )}
                 <FloatingContactButton />
-            </main>
-
+            </main>            
             <Footer />
         </>
     );

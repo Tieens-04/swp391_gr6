@@ -4,7 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SuperBanner from '../components/Banner';
-
+import LearnMore from '../components/LearnMore';
 
 export default function About() {
   return (
@@ -39,6 +39,7 @@ export default function About() {
         Hãy để Heatwave giúp bạn biến ước mơ học tập quốc tế thành hiện thực ngay hôm nay!
       </p>
     </div>
+    <LearnMore/>
     <Footer/>
     </>
   );
