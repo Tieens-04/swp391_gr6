@@ -35,6 +35,10 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User getUserById(String userId) {
+        return userRepository.findByUserId(userId);
+    }
+
     public List<Map<String, Object>> getUserRegistrationStats() {
         List<Object[]> results = userRepository.countUserByCreatedDate();
         List<Map<String, Object>> stats = new ArrayList<>();

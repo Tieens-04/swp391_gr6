@@ -14,7 +14,7 @@ public class User {
 
     @Id
     @Column(name = "user_id", length = 15, nullable = false)
-    private String user_id;
+    private String userId;
 
     @Column(name = "name")
     private String name;
@@ -23,7 +23,7 @@ public class User {
     private String email;
 
     @Column(name = "password_hash")
-    private String password_hash;
+    private String passwordHash;
 
     @Column(name = "role")
     private String role;
@@ -32,53 +32,53 @@ public class User {
     private String phone;
 
     @Column(name = "date_of_birth")
-    private Date date_of_birth;
+    private Date dateOfBirth;
 
     @Column(name = "gender")
     private String gender;
 
     @Column(name = "created_at", updatable = false)
-    private Timestamp created_at;
+    private Timestamp createdAt;
 
     @Column(name = "updated_at")
-    private Timestamp updated_at;
+    private Timestamp updatedAt;
 
     public User() {
     }
 
-    public User(String email, String password_hash) {
+    public User(String email, String passwordHash) {
         this.email = email;
-        this.password_hash = password_hash;
+        this.passwordHash = passwordHash;
     }
 
-    public User(String name, String email, String password_hash, String role, String phone, Date date_of_birth, String gender) {
+    public User(String name, String email, String passwordHash, String role, String phone, Date dateOfBirth, String gender) {
         this.name = name;
         this.email = email;
-        this.password_hash = password_hash;
+        this.passwordHash = passwordHash;
         this.role = role;
         this.phone = phone;
-        this.date_of_birth = date_of_birth;
+        this.dateOfBirth = dateOfBirth;
         this.gender = gender;
     }
 
-    public User(String user_id, String name, String email, String password_hash, String role, String phone,
-                Date date_of_birth, String gender) {
-        this.user_id = user_id;
+    public User(String userId, String name, String email, String passwordHash, String role, String phone,
+                Date dateOfBirth, String gender) {
+        this.userId = userId;
         this.name = name;
         this.email = email;
-        this.password_hash = password_hash;
+        this.passwordHash = passwordHash;
         this.role = role;
         this.phone = phone;
-        this.date_of_birth = date_of_birth;
+        this.dateOfBirth = dateOfBirth;
         this.gender = gender;
     }
 
     public String getUserId() {
-        return user_id;
+        return userId;
     }
 
-    public void setUserId(String user_id) {
-        this.user_id = user_id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -98,11 +98,11 @@ public class User {
     }
 
     public String getPasswordHash() {
-        return password_hash;
+        return passwordHash;
     }
 
-    public void setPasswordHash(String password_hash) {
-        this.password_hash = password_hash;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public String getPhone() {
@@ -114,11 +114,11 @@ public class User {
     }
 
     public Date getDateOfBirth() {
-        return date_of_birth;
+        return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date date_of_birth) {
-        this.date_of_birth = date_of_birth;
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getGender() {
@@ -138,19 +138,19 @@ public class User {
     }
 
     public Timestamp getCreatedAt() {
-        return created_at;
+        return createdAt;
     }
 
-    public void setCreatedAt(Timestamp created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Timestamp getUpdatedAt() {
-        return updated_at;
+        return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
 }

@@ -1,8 +1,11 @@
 import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { ChatContext } from "../contexts/ChatContext";
 import { UserContext } from "../contexts/UserContext";
 
 export default function Header() {
     const { user, logout } = useContext(UserContext);
+    const { unreadCount } = useContext(ChatContext);
 
     return (
         <header className="bg-white text-dark shadow-sm py-2">
@@ -13,7 +16,7 @@ export default function Header() {
                         <img
                             src="/images/logo.png"
                             alt="Heatwave Scholarship"
-                            style={{ height: '80px' }} 
+                            style={{ height: '80px' }}
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "/images/placeholder-logo.png";
@@ -50,7 +53,7 @@ export default function Header() {
                             >
                                 <i className="fas fa-user-circle fs-4"></i>
                             </button>
-                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">                               
+                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                                 {!user.isLoggedIn ? (
                                     <>
                                         <li><a className="dropdown-item" href="/auth/login">Login</a></li>
@@ -67,6 +70,10 @@ export default function Header() {
                                         )}
                                         <li><a className="dropdown-item" href="/seeker/user-profile">Profile</a></li>
                                         <li>
+                                            <Link to="/messages" className="nav-link messages-link">
+                                                <i className="fas fa-envelope"></i>
+                                                {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+                                            </Link>
                                             <a
                                                 className="dropdown-item text-danger"
                                                 href="/logout"

@@ -23,6 +23,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("role", user.getRole())
+                .claim("userId", user.getUserId())  // Thêm userId vào token
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
@@ -35,6 +36,19 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    // Thêm phương thức để lấy userId từ token
+    public String getUserIdFromToken(String token) {
+        try {
+            return Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("userId", String.class);
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public User extractUserFromToken(String token) {
@@ -67,5 +81,4 @@ public class JwtUtil {
     public String refreshToken(String token) {
         return null;
     }
-
 }
