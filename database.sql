@@ -127,6 +127,8 @@ INSERT INTO users (user_id, email, password_hash, role, name, phone, date_of_bir
 ('USER0000000105', 'vanson.bui@gmail.com', '$2a$10$tU9v0w1x2y3z4a5b6c7d8e9f0g1h2i3j4k5l6m7n8o9p0q1r2s3t4', 'seeker', 'Bùi Văn Sơn', '0989012354', '1987-05-26', 'male', '2025-05-31 08:30:00', '2025-05-31 08:30:00'),
 ('USER0000000106', 'kimbang.ngo@gmail.com', '$2a$10$uV0w1x2y3z4a5b6c7d8e9f0g1h2i3j4k5l6m7n8o9p0q1r2s3t4u5', 'seeker', 'Ngô Kim Băng', '0990123465', '1991-09-09', 'female', '2025-05-31 08:45:00', '2025-05-31 08:45:00');
 
+DESC users;
+
 CREATE TABLE verification_tokens (
 	id BIGINT PRIMARY KEY NOT NULL,
     email VARCHAR(255),
@@ -154,24 +156,16 @@ CREATE TABLE staff_profiles (
     FOREIGN KEY (created_by) REFERENCES users(user_id)
 );
 
--- Seeker profiles
-CREATE TABLE seeker_profiles (
-    seeker_id VARCHAR(15) PRIMARY KEY,
-    current_education_level ENUM('high_school', 'undergraduate', 'graduate', 'postgraduate'),
-    field_of_study VARCHAR(200),
-    gpa DECIMAL(4,2),
-    target_degree VARCHAR(200),
-    target_countries JSON,
-    preferred_languages JSON,
-    financial_need_level ENUM('low', 'medium', 'high'),
-    cv_url VARCHAR(500),
-    bio TEXT,
-    assigned_staff_id VARCHAR(15),
-    FOREIGN KEY (seeker_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (assigned_staff_id) REFERENCES users(user_id)
-);
+DESC staff_profiles;
 
-DESC seeker_profiles;
+CREATE TABLE seeker_staff_mapping (
+    seeker_id VARCHAR(15) NOT NULL,
+    staff_id VARCHAR(15) NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (seeker_id),
+    FOREIGN KEY (seeker_id) REFERENCES users(user_id),
+    FOREIGN KEY (staff_id) REFERENCES users(user_id)
+);
 
 -- ===================================================================
 -- SCHOLARSHIP MANAGEMENT TABLES

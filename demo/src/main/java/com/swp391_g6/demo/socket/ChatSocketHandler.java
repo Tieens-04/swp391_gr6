@@ -2,14 +2,17 @@ package com.swp391_g6.demo.socket;
 
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.swp391_g6.demo.dto.ChatDTO;
 import com.swp391_g6.demo.entity.Chat;
+import com.swp391_g6.demo.entity.SeekerStaffMapping;
+import com.swp391_g6.demo.entity.Staff;
 import com.swp391_g6.demo.entity.User;
+import com.swp391_g6.demo.repository.StaffRepository;
+import com.swp391_g6.demo.service.SeekerStaffMappingService;
 import com.swp391_g6.demo.service.ChatService;
 import com.swp391_g6.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class ChatSocketHandler {
+
+    @Autowired
+    private StaffRepository staffRepository;
+
+    @Autowired
+    private SeekerStaffMappingService seekerStaffMappingService;
 
     @Autowired
     private SocketIOServer socketIOServer;
@@ -90,8 +99,22 @@ public class ChatSocketHandler {
 
             userId.ifPresent(id -> {
                 userSocketMap.remove(id);
-                userRoleMap.remove(id); // Xóa role từ map
+                String role = userRoleMap.remove(id);
                 System.out.println("  - Removed user mapping for: " + id);
+
+                // Nếu là seeker, giảm currentSeekerCount cho staff và xóa mapping
+                if ("seeker".equals(role)) {
+                    SeekerStaffMapping mapping = seekerStaffMappingService.getMappingBySeeker(id);
+                    if (mapping != null) {
+                        Staff staff = staffRepository.findByStaffId(mapping.getStaffId());
+                        if (staff != null && staff.getCurrentSeekerCount() != null
+                                && staff.getCurrentSeekerCount() > 0) {
+                            staff.setCurrentSeekerCount(staff.getCurrentSeekerCount() - 1);
+                            staffRepository.save(staff);
+                        }
+                        seekerStaffMappingService.removeMapping(id);
+                    }
+                }
             });
         };
     }
@@ -154,74 +177,70 @@ public class ChatSocketHandler {
     private void handleSystemMessage(ChatDTO data, AckRequest ackRequest) {
         System.out.println("  - Processing SYSTEM message");
 
-        // Tìm staff (tư vấn viên) đang online
-        List<String> onlineStaffIds = userRoleMap.entrySet().stream()
-                .filter(entry -> "staff".equals(entry.getValue()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+        // Kiểm tra mapping seeker-staff
+        SeekerStaffMapping mapping = seekerStaffMappingService.getMappingBySeeker(data.getSenderId());
+        String staffId = null;
 
-        System.out.println("  - Found " + onlineStaffIds.size() + " online staff members");
-
-        if (onlineStaffIds.isEmpty()) {
-            // Nếu không có staff online, lưu tin nhắn cho staff mặc định
-            String defaultStaffId = "USER0000000126"; // ID của staff mặc định trong hệ thống
-
-            System.out.println("  - No staff online, saving message for default staff: " + defaultStaffId);
-
-            Chat savedChat = chatService.saveMessage(
-                    data.getSenderId(),
-                    defaultStaffId,
-                    data.getMessage());
-
-            // Chuyển đổi chat đã lưu thành DTO
-            ChatDTO chatDTO = convertChatToDTO(savedChat);
-
-            // Cập nhật activeConversation của người gửi
-            SocketIOClient senderClient = socketIOServer.getClient(userSocketMap.get(data.getSenderId()));
-            if (senderClient != null) {
-                Map<String, String> conversationUpdate = new HashMap<>();
-                conversationUpdate.put("activeStaff", defaultStaffId);
-                senderClient.sendEvent("conversation_update", conversationUpdate);
-                System.out.println("  - Sent conversation update to sender with default staff");
-            }
-
-            // Gửi ACK về cho người gửi
-            if (ackRequest.isAckRequested()) {
-                ackRequest.sendAckData(chatDTO);
-            }
+        if (mapping != null) {
+            staffId = mapping.getStaffId();
+            System.out.println("  - Seeker đã có staff: " + staffId);
         } else {
-            // Chọn staff đầu tiên đang online
-            String staffId = onlineStaffIds.get(0);
-            System.out.println("  - Selected online staff: " + staffId);
+            // Lấy danh sách staff online
+            List<String> onlineStaffIds = userRoleMap.entrySet().stream()
+                    .filter(entry -> "staff".equals(entry.getValue()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
 
-            // Lưu tin nhắn vào database với staff đã chọn
-            Chat savedChat = chatService.saveMessage(
-                    data.getSenderId(),
-                    staffId,
-                    data.getMessage());
+            if (onlineStaffIds.isEmpty()) {
+                staffId = "USER0000000126"; // staff mặc định
+            } else {
+                // Lấy staff online có currentSeekerCount thấp nhất
+                List<Staff> onlineStaffs = staffRepository.findAllById(onlineStaffIds);
+                Staff selected = onlineStaffs.stream()
+                        .min((s1, s2) -> Integer.compare(
+                                s1.getCurrentSeekerCount() == null ? 0 : s1.getCurrentSeekerCount(),
+                                s2.getCurrentSeekerCount() == null ? 0 : s2.getCurrentSeekerCount()))
+                        .orElse(null);
 
-            ChatDTO chatDTO = convertChatToDTO(savedChat);
-
-            // Gửi tin nhắn tới staff đã chọn
-            UUID staffSessionId = userSocketMap.get(staffId);
-            if (staffSessionId != null) {
-                System.out.println("  - Forwarding message to staff with session: " + staffSessionId);
-                socketIOServer.getClient(staffSessionId).sendEvent("chat", chatDTO);
+                if (selected != null) {
+                    staffId = selected.getStaffId();
+                    // Tăng currentSeekerCount
+                    selected.setCurrentSeekerCount(
+                            (selected.getCurrentSeekerCount() == null ? 0 : selected.getCurrentSeekerCount()) + 1);
+                    staffRepository.save(selected);
+                    // Lưu mapping
+                    seekerStaffMappingService.assignStaffToSeeker(data.getSenderId(), staffId);
+                } else {
+                    staffId = onlineStaffIds.get(0);
+                }
             }
+        }
 
-            // Cập nhật activeConversation của người gửi
-            SocketIOClient senderClient = socketIOServer.getClient(userSocketMap.get(data.getSenderId()));
-            if (senderClient != null) {
-                Map<String, String> conversationUpdate = new HashMap<>();
-                conversationUpdate.put("activeStaff", staffId);
-                senderClient.sendEvent("conversation_update", conversationUpdate);
-                System.out.println("  - Sent conversation update to sender");
-            }
+        // Lưu tin nhắn vào database với staff đã chọn
+        Chat savedChat = chatService.saveMessage(
+                data.getSenderId(),
+                staffId,
+                data.getMessage());
 
-            // Gửi ACK về cho người gửi
-            if (ackRequest.isAckRequested()) {
-                ackRequest.sendAckData(chatDTO);
-            }
+        ChatDTO chatDTO = convertChatToDTO(savedChat);
+
+        // Gửi tin nhắn tới staff đã chọn nếu online
+        UUID staffSessionId = userSocketMap.get(staffId);
+        if (staffSessionId != null) {
+            socketIOServer.getClient(staffSessionId).sendEvent("chat", chatDTO);
+        }
+
+        // Cập nhật activeConversation của seeker
+        SocketIOClient senderClient = socketIOServer.getClient(userSocketMap.get(data.getSenderId()));
+        if (senderClient != null) {
+            Map<String, String> conversationUpdate = new HashMap<>();
+            conversationUpdate.put("activeStaff", staffId);
+            senderClient.sendEvent("conversation_update", conversationUpdate);
+        }
+
+        // Gửi ACK về cho seeker
+        if (ackRequest.isAckRequested()) {
+            ackRequest.sendAckData(chatDTO);
         }
     }
 

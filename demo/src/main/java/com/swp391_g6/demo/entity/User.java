@@ -37,6 +37,12 @@ public class User {
     @Column(name = "gender")
     private String gender;
 
+    @Column(name = "status_online")
+    private Boolean statusOnline;
+
+    @Column(name = "last_online_at")
+    private Timestamp lastOnlineAt;
+
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
@@ -51,7 +57,8 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
-    public User(String name, String email, String passwordHash, String role, String phone, Date dateOfBirth, String gender) {
+    public User(String name, String email, String passwordHash, String role, String phone, Date dateOfBirth,
+            String gender) {
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
@@ -62,7 +69,7 @@ public class User {
     }
 
     public User(String userId, String name, String email, String passwordHash, String role, String phone,
-                Date dateOfBirth, String gender) {
+            Date dateOfBirth, String gender) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -135,6 +142,22 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Boolean getStatusOnline() {
+        return statusOnline;
+    }
+
+    public void setStatusOnline(Boolean statusOnline) {
+        this.statusOnline = statusOnline;
+    }
+
+    public Timestamp getLastOnlineAt() {
+        return lastOnlineAt;
+    }
+
+    public void setLastOnlineAt(Timestamp lastOnlineAt) {
+        this.lastOnlineAt = lastOnlineAt;
     }
 
     public Timestamp getCreatedAt() {
