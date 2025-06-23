@@ -11,6 +11,7 @@ import Choose from '../components/Choose';
 import WhyChoose from '../components/Whychoose';
 import RegisterForm from '../components/Register-book';
 import FlywireAd from '../components/FlywireAd';
+import ChatBox from '../components/ChatBox';
 
 import { getAllScholarships } from '../services/scholarshipApi';
 import { UserContext } from '../contexts/UserContext';
@@ -101,6 +102,7 @@ export default function Home() {
                     </nav>
                 )}
                 <FloatingContactButton />
+                <ChatBox />
             </main>            
             <Footer />
         </>

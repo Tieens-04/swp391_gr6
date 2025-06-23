@@ -528,6 +528,24 @@ CREATE TABLE scholarship_media (
     FOREIGN KEY (scholarship_id) REFERENCES scholarships(scholarship_id) ON DELETE CASCADE
 );
 
+CREATE TABLE chats (
+    chat_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sender_id VARCHAR(15) NOT NULL,
+    receiver_id VARCHAR(15) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users (user_id),
+    FOREIGN KEY (receiver_id) REFERENCES users (user_id)
+);
+
+
+
+-- Add indexes for better performance
+CREATE INDEX idx_sender_receiver ON chats(sender_id, receiver_id);
+CREATE INDEX idx_receiver_read ON chats(receiver_id, is_read);
+CREATE INDEX idx_created_at ON chats(created_at);
+
 -- ===================================================================
 -- APPLICATION AND TRACKING TABLES
 -- ===================================================================
