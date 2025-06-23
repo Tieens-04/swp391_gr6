@@ -141,8 +141,7 @@ const Messages = () => {
     }
 
     return (
-        <>
-            <Header />
+        <div className="messenger-page-container">
             <div className="messenger-container">
                 {/* Sidebar */}
                 <div className="messenger-sidebar">
@@ -399,7 +398,12 @@ const Messages = () => {
                     )}
                 </div>
             </div>
-        </>
+            
+            {/* Header moved to bottom */}
+            <div className="messenger-header-container">
+                <Header />
+            </div>
+        </div>
     );
 };
 

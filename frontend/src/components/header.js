@@ -37,6 +37,18 @@ export default function Header() {
                             <li className="nav-item mx-3">
                                 <a className="nav-link text-dark" href="/services">SERVICES</a>
                             </li>
+                            {user.isLoggedIn && (
+                                <li className="nav-item mx-3">
+                                    <Link to="/messages" className="nav-link text-dark position-relative">
+                                        MESSAGES
+                                        {unreadCount > 0 && (
+                                            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                {unreadCount}
+                                            </span>
+                                        )}
+                                    </Link>
+                                </li>
+                            )}
                         </ul>
                     </div>
 
@@ -51,7 +63,8 @@ export default function Header() {
                                 aria-expanded="false"
                                 style={{ border: 'none' }}
                             >
-                                <i className="fas fa-user-circle fs-4"></i>
+                                <i className="fas fa-user-circle fs-4 me-2"></i>
+                                <span>Tài khoản</span>
                             </button>
                             <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                                 {!user.isLoggedIn ? (
@@ -66,14 +79,11 @@ export default function Header() {
                                                 <li><a className="dropdown-item" href="/admin/manage-users">Manage Users</a></li>
                                                 <li><a className="dropdown-item" href="/manage-scholarships">Manage Scholarships</a></li>
                                                 <li><a className="dropdown-item" href="/admin/dashboard">Admin Dashboard</a></li>
+                                                <li><hr className="dropdown-divider" /></li>
                                             </>
                                         )}
                                         <li><a className="dropdown-item" href="/seeker/user-profile">Profile</a></li>
                                         <li>
-                                            <Link to="/messages" className="nav-link messages-link">
-                                                <i className="fas fa-envelope"></i>
-                                                {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
-                                            </Link>
                                             <a
                                                 className="dropdown-item text-danger"
                                                 href="/logout"
@@ -83,7 +93,7 @@ export default function Header() {
                                                     window.location.href = "/auth/login";
                                                 }}
                                             >
-                                                Logout
+                                                Đăng xuất
                                             </a>
                                         </li>
                                     </>
