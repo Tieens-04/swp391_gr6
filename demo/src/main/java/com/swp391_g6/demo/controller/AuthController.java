@@ -126,18 +126,31 @@ public class AuthController {
         }
     }
 
+    // [POST] /api/auth/forgot-password - Quên mật khẩu
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest request) {
         authService.sendResetPasswordEmail(request.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body("Mã xác thực đã được gửi đến email của bạn");
     }
 
+    // [POST] /api/auth/reset-password - Đặt lại mật khẩu
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String newPassword = request.get("newPassword");
 
-        authService.updatePassword(email, newPassword);
+        authService.resetPassword(email, newPassword);
+        return ResponseEntity.status(HttpStatus.OK).body("Mật khẩu đã được cập nhật thành công");
+    }
+
+    // [POST] /api/auth/change-password - Đổi mật khẩu
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+
+        authService.changePassword(email, oldPassword, newPassword);
         return ResponseEntity.status(HttpStatus.OK).body("Mật khẩu đã được cập nhật thành công");
     }
 

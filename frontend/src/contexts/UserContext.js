@@ -6,18 +6,20 @@ export const UserContext = createContext();
 export function UserProvider({ children }) {
     const [user, setUser] = useState({
         isLoggedIn: false,
+        userId: null,
         role: null,
         accessToken: null,
     });
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("accessToken");
         if (accessToken) {
             try {
-                const decoded = jwtDecode(accessToken); // Đã sửa ở đây
+                const decoded = jwtDecode(accessToken);
                 setUser({
                     isLoggedIn: true,
-                    name: decoded.name || null,
+                    userId: decoded.userId || null,
                     role: decoded.role,
                     accessToken,
                 });
@@ -25,6 +27,8 @@ export function UserProvider({ children }) {
                 setUser({ isLoggedIn: false, role: null, accessToken: null });
             }
         }
+        // Đánh dấu là đã hoàn thành kiểm tra xác thực
+        setIsCheckingAuth(false);
     }, []);
 
     const login = (accessToken) => {
@@ -32,7 +36,7 @@ export function UserProvider({ children }) {
         const decoded = jwtDecode(accessToken);
         setUser({
             isLoggedIn: true,
-            name: decoded.name || null,
+            userId: decoded.userId || null,
             role: decoded.role,
             accessToken,
         });
@@ -44,7 +48,7 @@ export function UserProvider({ children }) {
     };
 
     return (
-        <UserContext.Provider value={{ user, login, logout }}>
+        <UserContext.Provider value={{ user, login, logout, isCheckingAuth }}>
             {children}
         </UserContext.Provider>
     );

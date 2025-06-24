@@ -34,4 +34,13 @@ export const forgotPassword = async (data) => {
 
 export const resetPassword = async (data) => {
     return await axiosInstance.post("/auth/reset-password", data);
+}
+
+export const changePassword = async (data) => {
+    const { token, ...body } = data;
+    return await axiosInstance.post("/auth/change-password", body, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
 };

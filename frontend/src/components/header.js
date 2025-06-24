@@ -1,8 +1,11 @@
 import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { ChatContext } from "../contexts/ChatContext";
 import { UserContext } from "../contexts/UserContext";
 
 export default function Header() {
     const { user, logout } = useContext(UserContext);
+    const { unreadCount } = useContext(ChatContext);
 
     return (
         <header className="bg-white text-dark shadow-sm py-2">
@@ -13,7 +16,7 @@ export default function Header() {
                         <img
                             src="/images/logo.png"
                             alt="Heatwave Scholarship"
-                            style={{ height: '80px' }} 
+                            style={{ height: '80px' }}
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "/images/placeholder-logo.png";
@@ -34,6 +37,18 @@ export default function Header() {
                             <li className="nav-item mx-3">
                                 <a className="nav-link text-dark" href="/services">SERVICES</a>
                             </li>
+                            {user.isLoggedIn && (
+                                <li className="nav-item mx-3">
+                                    <Link to="/messages" className="nav-link text-dark position-relative">
+                                        MESSAGES
+                                        {unreadCount > 0 && (
+                                            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                {unreadCount}
+                                            </span>
+                                        )}
+                                    </Link>
+                                </li>
+                            )}
                         </ul>
                     </div>
 
@@ -48,9 +63,10 @@ export default function Header() {
                                 aria-expanded="false"
                                 style={{ border: 'none' }}
                             >
-                                <i className="fas fa-user-circle fs-4"></i>
+                                <i className="fas fa-user-circle fs-4 me-2"></i>
+                                <span>Tài khoản</span>
                             </button>
-                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">                               
+                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                                 {!user.isLoggedIn ? (
                                     <>
                                         <li><a className="dropdown-item" href="/auth/login">Login</a></li>
@@ -63,6 +79,7 @@ export default function Header() {
                                                 <li><a className="dropdown-item" href="/admin/manage-users">Manage Users</a></li>
                                                 <li><a className="dropdown-item" href="/manage-scholarships">Manage Scholarships</a></li>
                                                 <li><a className="dropdown-item" href="/admin/dashboard">Admin Dashboard</a></li>
+                                                <li><hr className="dropdown-divider" /></li>
                                             </>
                                         )}
                                         <li><a className="dropdown-item" href="/seeker/user-profile">Profile</a></li>
@@ -76,7 +93,7 @@ export default function Header() {
                                                     window.location.href = "/auth/login";
                                                 }}
                                             >
-                                                Logout
+                                                Đăng xuất
                                             </a>
                                         </li>
                                     </>

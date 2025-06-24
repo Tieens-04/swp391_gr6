@@ -127,11 +127,14 @@ INSERT INTO users (user_id, email, password_hash, role, name, phone, date_of_bir
 ('USER0000000105', 'vanson.bui@gmail.com', '$2a$10$tU9v0w1x2y3z4a5b6c7d8e9f0g1h2i3j4k5l6m7n8o9p0q1r2s3t4', 'seeker', 'Bùi Văn Sơn', '0989012354', '1987-05-26', 'male', '2025-05-31 08:30:00', '2025-05-31 08:30:00'),
 ('USER0000000106', 'kimbang.ngo@gmail.com', '$2a$10$uV0w1x2y3z4a5b6c7d8e9f0g1h2i3j4k5l6m7n8o9p0q1r2s3t4u5', 'seeker', 'Ngô Kim Băng', '0990123465', '1991-09-09', 'female', '2025-05-31 08:45:00', '2025-05-31 08:45:00');
 
+DESC users;
+
 CREATE TABLE verification_tokens (
+	id BIGINT PRIMARY KEY NOT NULL,
     email VARCHAR(255),
     otp_code CHAR(6),
-    expires_at TIMESTAMP,
-	PRIMARY KEY(email)
+    task VARCHAR(123),
+    expires_at TIMESTAMP
 );
 
 -- Admin profiles
@@ -153,24 +156,16 @@ CREATE TABLE staff_profiles (
     FOREIGN KEY (created_by) REFERENCES users(user_id)
 );
 
--- Seeker profiles
-CREATE TABLE seeker_profiles (
-    seeker_id VARCHAR(15) PRIMARY KEY,
-    current_education_level ENUM('high_school', 'undergraduate', 'graduate', 'postgraduate'),
-    field_of_study VARCHAR(200),
-    gpa DECIMAL(4,2),
-    target_degree VARCHAR(200),
-    target_countries JSON,
-    preferred_languages JSON,
-    financial_need_level ENUM('low', 'medium', 'high'),
-    cv_url VARCHAR(500),
-    bio TEXT,
-    assigned_staff_id VARCHAR(15),
-    FOREIGN KEY (seeker_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (assigned_staff_id) REFERENCES users(user_id)
-);
+DESC staff_profiles;
 
-DESC seeker_profiles;
+CREATE TABLE seeker_staff_mapping (
+    seeker_id VARCHAR(15) NOT NULL,
+    staff_id VARCHAR(15) NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (seeker_id),
+    FOREIGN KEY (seeker_id) REFERENCES users(user_id),
+    FOREIGN KEY (staff_id) REFERENCES users(user_id)
+);
 
 -- ===================================================================
 -- SCHOLARSHIP MANAGEMENT TABLES
@@ -200,10 +195,11 @@ CREATE TABLE organizations (
     organization_id VARCHAR(15) PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
     description TEXT,
+    world_rank INT,
     website_url VARCHAR(500),
     logo_url VARCHAR(500),
-    contact_email VARCHAR(255),
-    contact_phone VARCHAR(20),
+    number_student INT,
+    avg_cost_living INT,
     address TEXT,
     country VARCHAR(100),
     organization_type ENUM('university', 'government', 'private', 'ngo'),
@@ -243,12 +239,12 @@ DESC scholarships;
 CREATE TABLE scholarships (
     scholarship_id VARCHAR(15) PRIMARY KEY,
     title VARCHAR(300) NOT NULL,
-    world_rank INT,
     description LONGTEXT,
     organization_id VARCHAR(15) NOT NULL,
     category_id VARCHAR(15) NOT NULL,
     amount DECIMAL(15,2),
     currency VARCHAR(10) DEFAULT 'USD',
+    duration INT,
     application_deadline DATE,
     eligibility_criteria JSON,
     countries JSON,
@@ -450,12 +446,6 @@ INSERT INTO scholarships (
 ('SCHOLAR0000057', 'Latin America Leadership Program', 'Scholarships for students from Latin America to pursue leadership-focused graduate programs.', 'ORG0000007', 'SCHOLARCATE0003', 75000.00, 'USD', 24, '2025-02-15', '{"nationality": "Latin American countries", "leadership": "Leadership potential"}', '["United States"]', '["University"]', '["Masters Degree (Coursework)"]', '["TOEFL 100", "IELTS 7.0"]', 'active', 678, 98, FALSE, 'USER0000000002', NULL, '2025-01-18'),
 
 -- Additional University-Specific Scholarships
-('SCHOLAR0000058', 'University of Sydney International Scholarship', 'Merit-based scholarships for international students across all faculties at the University of Sydney.', 'ORG0000003', 'SCHOLARCATE0004', 40000.00, 'AUD', 48, '2025-01-31', '{"nationality": "All international", "academic": "High academic achievement"}', '["Sydney, Australia"]', '["University"]', '["Bachelors Degree", "Masters Degree (Coursework)"]', '["IELTS 6.5", "TOEFL 85"]', 'active', 789, 123, FALSE, 'USER0000000002', NULL, '2025-01-20'),
-
-('SCHOLAR0000059', 'Sydney Scholars Award', 'Prestigious awards for exceptional international students demonstrating academic excellence and leadership.', 'ORG0000003', 'SCHOLARCATE0004', 60000.00, 'AUD', 48, '2025-10-31', '{"nationality": "All international", "academic": "Outstanding academic record", "leadership": "Leadership potential"}', '["Sydney, Australia"]', '["University"]', '["Bachelors Degree"]', '["IELTS 7.0", "TOEFL 95"]', 'active', 1123, 167, TRUE, 'USER0000000002', NULL, '2025-01-15'),
-
-('SCHOLAR0000060', 'Sydney Research Excellence Scholarship', 'Research scholarships for international PhD students across all research areas.', 'ORG0000003', 'SCHOLARCATE0004', 45000.00, 'AUD', 48, '2025-08-31', '{"nationality": "All international", "research": "Research excellence"}', '["Sydney, Australia"]', '["University"]', '["PhD"]', '["IELTS 7.0", "TOEFL 94"]', 'active', 567, 89, FALSE, 'USER0000000002', NULL, '2025-01-12'),
-
 -- Specialized Professional Scholarships
 ('SCHOLAR0000061', 'Journalism Excellence Fellowship', 'Fellowships for international students pursuing graduate studies in journalism and media.', 'ORG0000005', 'SCHOLARCATE0006', 45000.00, 'GBP', 12, '2025-03-01', '{"nationality": "All international", "field": "Journalism, media studies"}', '["Cambridge, United Kingdom"]', '["University"]', '["Masters Degree (Coursework)"]', '["IELTS 7.5", "TOEFL 110"]', 'active', 456, 67, FALSE, 'USER0000000002', NULL, '2025-01-18'),
 
@@ -531,6 +521,24 @@ CREATE TABLE scholarship_media (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (scholarship_id) REFERENCES scholarships(scholarship_id) ON DELETE CASCADE
 );
+
+CREATE TABLE chats (
+    chat_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sender_id VARCHAR(15) NOT NULL,
+    receiver_id VARCHAR(15) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users (user_id),
+    FOREIGN KEY (receiver_id) REFERENCES users (user_id)
+);
+
+
+
+-- Add indexes for better performance
+CREATE INDEX idx_sender_receiver ON chats(sender_id, receiver_id);
+CREATE INDEX idx_receiver_read ON chats(receiver_id, is_read);
+CREATE INDEX idx_created_at ON chats(created_at);
 
 -- ===================================================================
 -- APPLICATION AND TRACKING TABLES
