@@ -9,7 +9,7 @@ import ScholarshipRoute from "./routes/scholarshipRoute";
 import DetailRoute from "./routes/detailRoute";
 import Messages from './pages/messages';
 import ChatBox from './components/ChatBox';
-
+import Payment from './pages/payment'; // Import component thanh toán
 function App() {
     return (
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
@@ -24,6 +24,7 @@ function App() {
                             <Route path="/detailRoute/*" element={<DetailRoute />} />
                             <Route path="/messages" element={<Messages />} />
                             <Route path="/chat" element={<ChatBox />} />
+                            <Route path="/payment" element={<Payment />} /> // Dùng 'Payment' cho tên component
                             {/* Thêm các route khác ở đây nếu có */}
                         </Routes>
                     </Router>

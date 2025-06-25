@@ -37,6 +37,9 @@ export default function Header() {
                             <li className="nav-item mx-3">
                                 <a className="nav-link text-dark" href="/services">SERVICES</a>
                             </li>
+                            <li className="nav-item mx-3">
+                                <Link to="/payment" className="nav-link text-dark">PAYMENT</Link>
+                            </li>
                             {user.isLoggedIn && (
                                 <li className="nav-item mx-3">
                                     <Link to="/messages" className="nav-link text-dark position-relative">
