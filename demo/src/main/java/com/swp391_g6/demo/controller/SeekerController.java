@@ -51,25 +51,7 @@ public class SeekerController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
         }
 
-        Seeker seeker = seekerService.findByUser(user);
-        if (seeker == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Seeker profile not found");
-        }
-
         Map<String, Object> response = new HashMap<>();
-
-        response.put("seeker_id", seeker.getSeekerId());
-        response.put("current_education_level", seeker.getCurrentEducationLevel());
-        response.put("field_of_study", seeker.getFieldOfStudy());
-        response.put("gpa", seeker.getGpa());
-        response.put("target_degree", seeker.getTargetDegree());
-        response.put("target_countries", seeker.getTargetCountries());
-        response.put("preferred_languages", seeker.getPreferredLanguages());
-        response.put("financial_need_level", seeker.getFinancialNeedLevel());
-        response.put("cv_url", seeker.getCvUrl());
-        response.put("bio", seeker.getBio());
-        response.put("assigned_staff_id",
-                seeker.getAssignedStaff() != null ? seeker.getAssignedStaff().getUserId() : null);
 
         response.put("user_id", user.getUserId());
         response.put("name", user.getName());

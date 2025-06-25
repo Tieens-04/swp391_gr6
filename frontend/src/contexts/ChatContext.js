@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useReducer } from 'react';
+import React, { createContext, useContext, useState, useEffect, useReducer, useCallback } from 'react';
 import io from 'socket.io-client';
 import { UserContext } from './UserContext';
-import { getConversation, getContacts, getUnreadMessageCount, markAsRead } from '../services/chatApi';
+import { getConversation, getContacts, getUnreadMessageCount, markAsRead as markAsReadApi } from '../services/chatApi';
 
 export const ChatContext = createContext();
 
@@ -94,7 +94,7 @@ export const ChatProvider = ({ children }) => {
                 socketInstance.disconnect();
             };
         }
-    }, [user?.accessToken, user?.userId]);
+    }, [user?.accessToken, user?.userId, activeConversation]);
 
     // Gửi tin nhắn: tin đầu tiên gửi tới "system", các tin sau gửi tới staff
     const sendMessage = (receiverId, message) => {
@@ -141,7 +141,8 @@ export const ChatProvider = ({ children }) => {
                     });
                 }
                 try {
-                    await markAsRead(user.accessToken, userId);
+                    await markAsReadApi(user.accessToken, userId);
+                    await fetchUnreadCount();
                 } catch (err) {
                     // Bỏ qua lỗi API
                 }
@@ -151,7 +152,35 @@ export const ChatProvider = ({ children }) => {
         }
     };
 
-    // (Tùy chọn) Load danh sách contacts, unread count nếu muốn
+    // Lấy số lượng tin nhắn chưa đọc
+    const fetchUnreadCount = useCallback(async () => {
+        if (!user?.accessToken) return;
+        try {
+            const response = await getUnreadMessageCount(user.accessToken);
+            setUnreadCount(response.data.count);
+        } catch (error) {
+            setUnreadCount(0);
+        }
+    }, [user?.accessToken]);
+
+    // Tự động cập nhật số lượng tin nhắn chưa đọc mỗi 30s
+    useEffect(() => {
+        if (!user?.accessToken) return;
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 30000);
+        return () => clearInterval(interval);
+    }, [fetchUnreadCount, user?.accessToken]);
+
+    // Đánh dấu đã đọc và cập nhật số lượng chưa đọc
+    const markAsRead = useCallback(async (messageIds) => {
+        if (!user?.accessToken) return;
+        try {
+            await markAsReadApi(user.accessToken, messageIds);
+            await fetchUnreadCount();
+        } catch (error) {
+            // Bỏ qua lỗi
+        }
+    }, [user?.accessToken, fetchUnreadCount]);
 
     return (
         <ChatContext.Provider
@@ -165,6 +194,8 @@ export const ChatProvider = ({ children }) => {
                 setActiveConversation,
                 loadConversation,
                 sendMessage,
+                fetchUnreadCount,
+                markAsRead,
             }}
         >
             {children}

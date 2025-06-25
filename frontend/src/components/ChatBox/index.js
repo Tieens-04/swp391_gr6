@@ -7,16 +7,107 @@ import moment from 'moment';
 import ScrollableFeed from 'react-scrollable-feed';
 import './style.css';
 
+const CHAT_STATE_KEY = 'chatbox_state';
+
 const ChatBox = () => {
     const navigate = useNavigate();
     const { user } = useContext(UserContext);
-    const { conversations, activeConversation, sendMessage, unreadCount, isConnected } = useContext(ChatContext);
+    const { 
+        conversations, 
+        activeConversation, 
+        sendMessage, 
+        unreadCount, 
+        isConnected,
+        loadConversation,
+        setActiveConversation
+    } = useContext(ChatContext);
 
-    const [isOpen, setIsOpen] = useState(false);
+    // Initialize state with localStorage values if available
+    const getInitialState = () => {
+        try {
+            const savedState = localStorage.getItem(CHAT_STATE_KEY);
+            if (savedState) {
+                const parsedState = JSON.parse(savedState);
+                return parsedState.isOpen || false;
+            }
+        } catch (error) {
+            console.error('Error reading chat state from localStorage:', error);
+        }
+        return false;
+    };
+
+    const [isOpen, setIsOpen] = useState(getInitialState);
     const [message, setMessage] = useState('');
     const [prompts, setPrompts] = useState([]);
     const [showWelcome, setShowWelcome] = useState(true);
+    const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef(null);
+    const prevMessagesLengthRef = useRef(0);
+    const scrollTimeoutRef = useRef(null);
+    const initialLoadDoneRef = useRef(false);
+    const loadingConversationRef = useRef(false);
+
+    // Save chat state to localStorage when it changes
+    useEffect(() => {
+        try {
+            localStorage.setItem(CHAT_STATE_KEY, JSON.stringify({
+                isOpen,
+                activeConversation
+            }));
+        } catch (error) {
+            console.error('Error saving chat state to localStorage:', error);
+        }
+    }, [isOpen, activeConversation]);
+
+    // Auto-load conversation on page load if user is logged in
+    useEffect(() => {
+        if (user?.isLoggedIn && !initialLoadDoneRef.current && !loadingConversationRef.current) {
+            try {
+                // Always load the saved conversation on initial render
+                const savedState = localStorage.getItem(CHAT_STATE_KEY);
+                if (savedState) {
+                    const parsedState = JSON.parse(savedState);
+                    
+                    if (parsedState.activeConversation) {
+                        // Set the active conversation
+                        setActiveConversation(parsedState.activeConversation);
+                        
+                        // Force load the conversation
+                        loadingConversationRef.current = true;
+                        setLoading(true);
+                        
+                        loadConversation(parsedState.activeConversation)
+                            .then(() => {
+                                // Check if we need to open chatbox based on stored state
+                                if (parsedState.isOpen) {
+                                    setIsOpen(true);
+                                }
+                                
+                                // Set welcome message display based on conversation content
+                                if (conversations[parsedState.activeConversation]?.length > 0) {
+                                    setShowWelcome(false);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading conversation:', error);
+                            })
+                            .finally(() => {
+                                setLoading(false);
+                                loadingConversationRef.current = false;
+                                initialLoadDoneRef.current = true;
+                            });
+                    } else {
+                        initialLoadDoneRef.current = true;
+                    }
+                } else {
+                    initialLoadDoneRef.current = true;
+                }
+            } catch (error) {
+                console.error('Error restoring chat state from localStorage:', error);
+                initialLoadDoneRef.current = true;
+            }
+        }
+    }, [user, loadConversation, setActiveConversation, conversations]);
 
     // Fetch prompt suggestions
     useEffect(() => {
@@ -31,32 +122,67 @@ const ChatBox = () => {
             });
     }, []);
 
-    // When chatbox opens, show welcome message
+    // When chatbox opens, make sure conversation is loaded
     useEffect(() => {
-        if (isOpen) {
-            // Hide welcome message if there's an active conversation
-            if (activeConversation && conversations[activeConversation]?.length > 0) {
-                setShowWelcome(false);
-            } else {
-                setShowWelcome(true);
+        // Only load if we haven't already loaded during initialization
+        if (isOpen && activeConversation && loadConversation && initialLoadDoneRef.current && !loadingConversationRef.current) {
+            setLoading(true);
+            loadConversation(activeConversation)
+                .then(() => {
+                    // Hide welcome message if there are messages
+                    if (conversations[activeConversation]?.length > 0) {
+                        setShowWelcome(false);
+                    }
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [isOpen, activeConversation, loadConversation, conversations]);
+
+    // Scroll to bottom only when new messages arrive
+    useEffect(() => {
+        if (activeConversation && conversations[activeConversation]) {
+            const currentMessagesLength = conversations[activeConversation].length;
+            
+            // Only scroll if new messages were added
+            if (currentMessagesLength > prevMessagesLengthRef.current) {
+                // Clear any existing timeout to prevent multiple scrolls
+                if (scrollTimeoutRef.current) {
+                    clearTimeout(scrollTimeoutRef.current);
+                }
+                
+                // Use a small timeout to ensure DOM is updated
+                scrollTimeoutRef.current = setTimeout(() => {
+                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            }
+            
+            // Update the reference to the current length
+            prevMessagesLengthRef.current = currentMessagesLength;
+        }
+    }, [conversations, activeConversation]);
+
+    // Reset message counter when changing conversations
+    useEffect(() => {
+        if (activeConversation) {
+            prevMessagesLengthRef.current = conversations[activeConversation]?.length || 0;
+            
+            // Initial scroll when conversation changes
+            if (conversations[activeConversation]?.length > 0) {
+                setTimeout(() => {
+                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
             }
         }
-    }, [isOpen, activeConversation, conversations]);
+    }, [activeConversation, conversations]);
 
-    // Thêm useEffect để đồng bộ tin nhắn mới
+    // Clean up timeout on unmount
     useEffect(() => {
-        // Re-render khi có tin nhắn mới trong cuộc trò chuyện hiện tại
-        if (activeConversation && conversations[activeConversation]) {
-            // Đảm bảo component render lại khi có tin nhắn mới
-            console.log(`Conversation with ${activeConversation} updated, messages count: ${conversations[activeConversation].length}`);
-        }
-    }, [conversations, activeConversation]);
-
-    useEffect(() => {
-        if (activeConversation && conversations[activeConversation]?.length > 0) {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [conversations, activeConversation]);
+        return () => {
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const handleChatButtonClick = () => {
         if (!user || !user.isLoggedIn) {
@@ -131,6 +257,15 @@ const ChatBox = () => {
 
                     <div className="chat-box-body">
                         <ScrollableFeed>
+                            {/* Loading indicator */}
+                            {loading && (
+                                <div className="text-center py-3">
+                                    <div className="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span className="visually-hidden">Đang tải...</span>
+                                    </div>
+                                </div>
+                            )}
+                        
                             {/* Welcome message and prompts */}
                             {showWelcome && (
                                 <div className="welcome-container">
@@ -175,6 +310,7 @@ const ChatBox = () => {
                                     </div>
                                 </div>
                             ))}
+                            <div ref={messagesEndRef} />
                         </ScrollableFeed>
                     </div>
 

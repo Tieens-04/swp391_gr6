@@ -42,12 +42,10 @@ public class ChatSocketHandler {
     private ChatService chatService;
 
     @Autowired
-    private UserService userService; // Thêm UserService
+    private UserService userService;
 
-    // Store client connections with user IDs
     private final Map<String, UUID> userSocketMap = new HashMap<>();
 
-    // Store role of each connected user
     private final Map<String, String> userRoleMap = new HashMap<>();
 
     @PostConstruct
@@ -185,16 +183,14 @@ public class ChatSocketHandler {
             staffId = mapping.getStaffId();
             System.out.println("  - Seeker đã có staff: " + staffId);
         } else {
-            // Lấy danh sách staff online
             List<String> onlineStaffIds = userRoleMap.entrySet().stream()
                     .filter(entry -> "staff".equals(entry.getValue()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
 
             if (onlineStaffIds.isEmpty()) {
-                staffId = "USER0000000126"; // staff mặc định
+                staffId = "USER0000000126";
             } else {
-                // Lấy staff online có currentSeekerCount thấp nhất
                 List<Staff> onlineStaffs = staffRepository.findAllById(onlineStaffIds);
                 Staff selected = onlineStaffs.stream()
                         .min((s1, s2) -> Integer.compare(

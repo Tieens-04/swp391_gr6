@@ -167,6 +167,374 @@ CREATE TABLE seeker_staff_mapping (
     FOREIGN KEY (staff_id) REFERENCES users(user_id)
 );
 
+ALTER TABLE seeker_staff_mapping ADD COLUMN status ENUM('active', 'inactive') DEFAULT 'active';
+
+DESC seeker_staff_mapping;
+
+-- ===================================================================
+-- STAFF DASHBOARD TABLES
+-- ===================================================================
+
+CREATE TABLE staff_dashboard_activities (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    staff_id VARCHAR(15),
+    activity_type VARCHAR(50),
+    activity_details TEXT,
+    created_at TIMESTAMP
+);
+
+-- Bảng staff_profiles cần bổ sung thêm thuộc tính
+ALTER TABLE staff_profiles
+ADD COLUMN availability_status ENUM('available', 'busy', 'away', 'offline') DEFAULT 'available',
+ADD COLUMN specialization_areas JSON,
+ADD COLUMN working_hours JSON,
+ADD COLUMN profile_completion_percentage INT DEFAULT 0;
+
+-- Bảng counseling_cases - Quản lý các trường hợp tư vấn
+CREATE TABLE counseling_cases (
+    case_id VARCHAR(15) PRIMARY KEY,
+    user_id VARCHAR(15) NOT NULL,
+    staff_id VARCHAR(15),
+    case_title VARCHAR(255) NOT NULL,
+    status ENUM('open', 'in_progress', 'pending', 'resolved', 'closed') DEFAULT 'open',
+    priority ENUM('low', 'medium', 'high', 'urgent') DEFAULT 'medium',
+    category VARCHAR(100),
+    description TEXT,
+    expected_resolution_date DATE,
+    resolution_summary TEXT,
+    time_spent_minutes INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    closed_at TIMESTAMP NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id)
+);
+
+DESC counseling_cases;
+
+CREATE INDEX idx_counseling_cases_status ON counseling_cases(status);
+CREATE INDEX idx_counseling_cases_priority ON counseling_cases(priority);
+CREATE INDEX idx_counseling_cases_staff ON counseling_cases(staff_id);
+
+-- Bảng counseling_notes - Ghi chú của nhân viên tư vấn
+CREATE TABLE counseling_notes (
+    note_id VARCHAR(15) PRIMARY KEY,
+    case_id VARCHAR(15) NOT NULL,
+    staff_id VARCHAR(15) NOT NULL,
+    content TEXT NOT NULL,
+    is_private BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (case_id) REFERENCES counseling_cases(case_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id)
+);
+
+-- Bảng staff_appointments - Lịch hẹn tư vấn
+CREATE TABLE staff_appointments (
+    appointment_id VARCHAR(15) PRIMARY KEY,
+    staff_id VARCHAR(15) NOT NULL,
+    user_id VARCHAR(15) NOT NULL,
+    case_id VARCHAR(15),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    appointment_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    duration_minutes INT NOT NULL,
+    appointment_type ENUM('online', 'offline', 'phone', 'video') DEFAULT 'online',
+    status ENUM('scheduled', 'completed', 'cancelled', 'no_show', 'rescheduled') DEFAULT 'scheduled',
+    location VARCHAR(255),
+    meeting_link VARCHAR(255),
+    reminder_sent BOOLEAN DEFAULT FALSE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (case_id) REFERENCES counseling_cases(case_id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_staff_appointments_staff_id ON staff_appointments(staff_id);
+CREATE INDEX idx_staff_appointments_appointment_time ON staff_appointments(appointment_time);
+CREATE INDEX idx_staff_appointments_status ON staff_appointments(status);
+
+-- Bảng staff_tasks - Quản lý công việc của nhân viên
+CREATE TABLE staff_tasks (
+    task_id VARCHAR(15) PRIMARY KEY,
+    staff_id VARCHAR(15) NOT NULL,
+    case_id VARCHAR(15),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    due_date TIMESTAMP,
+    priority ENUM('low', 'medium', 'high', 'urgent') DEFAULT 'medium',
+    status ENUM('pending', 'in_progress', 'completed', 'cancelled') DEFAULT 'pending',
+    completion_percentage INT DEFAULT 0,
+    completed_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id),
+    FOREIGN KEY (case_id) REFERENCES counseling_cases(case_id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_staff_tasks_staff_id ON staff_tasks(staff_id);
+CREATE INDEX idx_staff_tasks_due_date ON staff_tasks(due_date);
+CREATE INDEX idx_staff_tasks_status ON staff_tasks(status);
+
+-- Bảng message_templates - Mẫu tin nhắn cho nhân viên
+CREATE TABLE message_templates (
+    template_id VARCHAR(15) PRIMARY KEY,
+    staff_id VARCHAR(15),
+    category VARCHAR(100) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    is_global BOOLEAN DEFAULT FALSE,
+    usage_count INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id) ON DELETE SET NULL
+);
+
+DESC messages;
+
+-- Bảng scholarship_recommendations - Đề xuất học bổng cho người dùng
+CREATE TABLE scholarship_recommendations (
+    recommendation_id VARCHAR(15) PRIMARY KEY,
+    user_id VARCHAR(15) NOT NULL,
+    scholarship_id VARCHAR(15) NOT NULL,
+    staff_id VARCHAR(15) NOT NULL,
+    note TEXT,
+    reason_for_recommendation TEXT,
+    relevance_score INT CHECK (relevance_score BETWEEN 1 AND 100),
+    status ENUM('pending', 'viewed', 'applied', 'rejected') DEFAULT 'pending',
+    viewed_at TIMESTAMP NULL,
+    action_taken_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (scholarship_id) REFERENCES scholarships(scholarship_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id)
+);
+
+CREATE INDEX idx_scholarship_recommendations_user ON scholarship_recommendations(user_id);
+CREATE INDEX idx_scholarship_recommendations_status ON scholarship_recommendations(status);
+
+-- Bảng user_scholarship_progress - Tiến trình ứng tuyển học bổng của người dùng
+CREATE TABLE user_scholarship_progress (
+    progress_id VARCHAR(15) PRIMARY KEY,
+    user_id VARCHAR(15) NOT NULL,
+    scholarship_id VARCHAR(15) NOT NULL,
+    staff_id VARCHAR(15),
+    status ENUM('informed', 'interested', 'preparing', 'submitted', 'interview', 'accepted', 'rejected', 'waitlisted') NOT NULL DEFAULT 'informed',
+    documents_status JSON,
+    submission_date DATE,
+    result_date DATE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (scholarship_id) REFERENCES scholarships(scholarship_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_user_scholarship_progress_user ON user_scholarship_progress(user_id);
+CREATE INDEX idx_user_scholarship_progress_status ON user_scholarship_progress(status);
+
+-- Bảng staff_statistics - Thống kê hiệu suất của nhân viên
+CREATE TABLE staff_statistics (
+    statistic_id VARCHAR(15) PRIMARY KEY,
+    staff_id VARCHAR(15) NOT NULL,
+    statistic_date DATE NOT NULL,
+    cases_handled INT DEFAULT 0,
+    cases_resolved INT DEFAULT 0,
+    messages_sent INT DEFAULT 0,
+    average_response_time_minutes INT,
+    appointments_completed INT DEFAULT 0,
+    tasks_completed INT DEFAULT 0,
+    recommendations_made INT DEFAULT 0,
+    user_satisfaction_score DECIMAL(3,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+DESC staff_statistics;
+
+CREATE INDEX idx_staff_statistics_date ON staff_statistics(statistic_date);
+CREATE INDEX idx_staff_statistics_staff_id ON staff_statistics(staff_id);
+
+-- Bảng user_profiles_extended - Thông tin mở rộng của người dùng
+CREATE TABLE user_profiles_extended (
+    profile_id VARCHAR(15) PRIMARY KEY,
+    user_id VARCHAR(15) NOT NULL,
+    education_history JSON,
+    certificates JSON,
+    test_scores JSON,
+    career_goals TEXT,
+    funding_preference TEXT,
+    preferred_countries JSON,
+    preferred_programs JSON,
+    preferred_start_date DATE,
+    budget_range VARCHAR(50),
+    special_requirements TEXT,
+    profile_completion_percentage INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Bảng staff_settings - Cài đặt của nhân viên tư vấn
+CREATE TABLE staff_settings (
+    setting_id VARCHAR(15) PRIMARY KEY,
+    staff_id VARCHAR(15) NOT NULL,
+    dashboard_layout JSON,
+    notification_preferences JSON,
+    email_signature TEXT,
+    theme_preference VARCHAR(50) DEFAULT 'light',
+    auto_response_enabled BOOLEAN DEFAULT FALSE,
+    auto_response_message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Bảng message_conversation_mapping - Liên kết tin nhắn với case
+ALTER TABLE messages 
+ADD COLUMN case_id VARCHAR(15) NULL,
+ADD CONSTRAINT fk_message_case FOREIGN KEY (case_id) REFERENCES counseling_cases(case_id) ON DELETE SET NULL;
+
+-- Bảng activity_dashboard - Hoạt động của dashboard
+CREATE TABLE dashboard_activities (
+    activity_id VARCHAR(15) PRIMARY KEY,
+    staff_id VARCHAR(15) NOT NULL,
+    activity_type VARCHAR(100) NOT NULL,
+    activity_details JSON,
+    entity_type VARCHAR(50),
+    entity_id VARCHAR(15),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_dashboard_activities_staff_id ON dashboard_activities(staff_id);
+CREATE INDEX idx_dashboard_activities_created_at ON dashboard_activities(created_at);
+
+-- Bảng user_session_feedback - Phản hồi từ người dùng sau buổi tư vấn
+CREATE TABLE user_session_feedback (
+    feedback_id VARCHAR(15) PRIMARY KEY,
+    session_id VARCHAR(15) NOT NULL,
+    user_id VARCHAR(15) NOT NULL,
+    staff_id VARCHAR(15) NOT NULL,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    feedback_text TEXT,
+    improvement_suggestions TEXT,
+    is_anonymous BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- ===================================================================
+-- TRIGGERS AND PROCEDURES FOR DASHBOARD
+-- ===================================================================
+
+-- Trigger để cập nhật profile_completion_percentage của staff
+DELIMITER //
+CREATE TRIGGER update_staff_profile_completion BEFORE UPDATE ON staff_profiles
+FOR EACH ROW
+BEGIN
+    DECLARE completion INT DEFAULT 0;
+    
+    -- Tính toán mức độ hoàn thành hồ sơ
+    IF NEW.specialization IS NOT NULL THEN SET completion = completion + 25; END IF;
+    IF NEW.education_level IS NOT NULL THEN SET completion = completion + 25; END IF;
+    IF NEW.experience_years > 0 THEN SET completion = completion + 25; END IF;
+    IF NEW.specialization_areas IS NOT NULL THEN SET completion = completion + 25; END IF;
+    
+    SET NEW.profile_completion_percentage = completion;
+END //
+DELIMITER ;
+
+-- Trigger để cập nhật profile_completion_percentage của user_profiles_extended
+DELIMITER //
+CREATE TRIGGER update_user_profile_completion BEFORE UPDATE ON user_profiles_extended
+FOR EACH ROW
+BEGIN
+    DECLARE completion INT DEFAULT 0;
+    
+    -- Tính toán mức độ hoàn thành hồ sơ
+    IF NEW.education_history IS NOT NULL THEN SET completion = completion + 20; END IF;
+    IF NEW.certificates IS NOT NULL THEN SET completion = completion + 15; END IF;
+    IF NEW.test_scores IS NOT NULL THEN SET completion = completion + 15; END IF;
+    IF NEW.career_goals IS NOT NULL THEN SET completion = completion + 20; END IF;
+    IF NEW.preferred_countries IS NOT NULL THEN SET completion = completion + 15; END IF;
+    IF NEW.budget_range IS NOT NULL THEN SET completion = completion + 15; END IF;
+    
+    SET NEW.profile_completion_percentage = completion;
+END //
+DELIMITER ;
+
+-- Procedure để tạo báo cáo hiệu suất hàng ngày cho staff
+DELIMITER //
+CREATE PROCEDURE generate_staff_daily_statistics()
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE staff_user_id VARCHAR(15);
+    DECLARE cur CURSOR FOR SELECT user_id FROM users WHERE role = 'staff';
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    OPEN cur;
+    
+    read_loop: LOOP
+        FETCH cur INTO staff_user_id;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        
+        -- Tạo hoặc cập nhật thống kê cho ngày hôm nay
+        INSERT INTO staff_statistics (
+            statistic_id,
+            staff_id,
+            statistic_date,
+            cases_handled,
+            cases_resolved,
+            messages_sent,
+            average_response_time_minutes,
+            appointments_completed,
+            tasks_completed,
+            recommendations_made
+        )
+        SELECT 
+            CONCAT('STAT', LPAD(FLOOR(RAND() * 1000000), 7, '0')),
+            staff_user_id,
+            CURDATE(),
+            (SELECT COUNT(*) FROM counseling_cases WHERE staff_id = staff_user_id AND DATE(created_at) = CURDATE()),
+            (SELECT COUNT(*) FROM counseling_cases WHERE staff_id = staff_user_id AND status = 'resolved' AND DATE(closed_at) = CURDATE()),
+            (SELECT COUNT(*) FROM messages WHERE sender_id = staff_user_id AND DATE(created_at) = CURDATE()),
+            (SELECT AVG(TIMESTAMPDIFF(MINUTE, c.created_at, m.created_at)) 
+             FROM counseling_cases c
+             JOIN messages m ON m.case_id = c.case_id
+             WHERE c.staff_id = staff_user_id AND m.sender_id = staff_user_id AND DATE(m.created_at) = CURDATE()),
+            (SELECT COUNT(*) FROM staff_appointments WHERE staff_id = staff_user_id AND status = 'completed' AND DATE(appointment_time) = CURDATE()),
+            (SELECT COUNT(*) FROM staff_tasks WHERE staff_id = staff_user_id AND status = 'completed' AND DATE(completed_at) = CURDATE()),
+            (SELECT COUNT(*) FROM scholarship_recommendations WHERE staff_id = staff_user_id AND DATE(created_at) = CURDATE())
+        ON DUPLICATE KEY UPDATE
+            cases_handled = VALUES(cases_handled),
+            cases_resolved = VALUES(cases_resolved),
+            messages_sent = VALUES(messages_sent),
+            average_response_time_minutes = VALUES(average_response_time_minutes),
+            appointments_completed = VALUES(appointments_completed),
+            tasks_completed = VALUES(tasks_completed),
+            recommendations_made = VALUES(recommendations_made);
+    END LOOP;
+    
+    CLOSE cur;
+END //
+DELIMITER ;
+
+-- Event để tự động chạy procedure generate_staff_daily_statistics mỗi ngày
+CREATE EVENT IF NOT EXISTS daily_staff_statistics_generation
+ON SCHEDULE EVERY 1 DAY STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 23 HOUR)
+DO
+    CALL generate_staff_daily_statistics();
+
 -- ===================================================================
 -- SCHOLARSHIP MANAGEMENT TABLES
 -- ===================================================================
@@ -522,61 +890,6 @@ CREATE TABLE scholarship_media (
     FOREIGN KEY (scholarship_id) REFERENCES scholarships(scholarship_id) ON DELETE CASCADE
 );
 
-CREATE TABLE chats (
-    chat_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    sender_id VARCHAR(15) NOT NULL,
-    receiver_id VARCHAR(15) NOT NULL,
-    message TEXT NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (sender_id) REFERENCES users (user_id),
-    FOREIGN KEY (receiver_id) REFERENCES users (user_id)
-);
-
-
-
--- Add indexes for better performance
-CREATE INDEX idx_sender_receiver ON chats(sender_id, receiver_id);
-CREATE INDEX idx_receiver_read ON chats(receiver_id, is_read);
-CREATE INDEX idx_created_at ON chats(created_at);
-
--- ===================================================================
--- APPLICATION AND TRACKING TABLES
--- ===================================================================
-
--- Scholarship applications
-CREATE TABLE scholarship_applications (
-    application_id INT PRIMARY KEY AUTO_INCREMENT,
-    scholarship_id INT NOT NULL,
-    seeker_id INT NOT NULL,
-    application_status ENUM('draft', 'submitted', 'under_review', 'accepted', 'rejected', 'withdrawn') DEFAULT 'draft',
-    application_data JSON,
-    documents JSON,
-    notes TEXT,
-    submitted_at TIMESTAMP NULL,
-    reviewed_at TIMESTAMP NULL,
-    decision_date TIMESTAMP NULL,
-    decision_reason TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (scholarship_id) REFERENCES scholarships(scholarship_id),
-    FOREIGN KEY (seeker_id) REFERENCES users(user_id),
-    UNIQUE KEY unique_application (scholarship_id, seeker_id)
-);
-
--- Application status history
-CREATE TABLE application_status_history (
-    history_id INT PRIMARY KEY AUTO_INCREMENT,
-    application_id INT NOT NULL,
-    old_status VARCHAR(50),
-    new_status VARCHAR(50),
-    changed_by INT,
-    change_reason TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (application_id) REFERENCES scholarship_applications(application_id) ON DELETE CASCADE,
-    FOREIGN KEY (changed_by) REFERENCES users(user_id)
-);
-
 -- ===================================================================
 -- COMMUNICATION AND COUNSELING TABLES
 -- ===================================================================
@@ -598,24 +911,6 @@ CREATE TABLE counseling_sessions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (seeker_id) REFERENCES users(user_id),
     FOREIGN KEY (staff_id) REFERENCES users(user_id)
-);
-
--- Messages/Chat
-CREATE TABLE messages (
-    message_id INT PRIMARY KEY AUTO_INCREMENT,
-    sender_id INT NOT NULL,
-    recipient_id INT NOT NULL,
-    session_id INT,
-    message_type ENUM('text', 'file', 'image', 'system') DEFAULT 'text',
-    content TEXT,
-    file_url VARCHAR(500),
-    file_name VARCHAR(255),
-    is_read BOOLEAN DEFAULT FALSE,
-    read_at TIMESTAMP NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (sender_id) REFERENCES users(user_id),
-    FOREIGN KEY (recipient_id) REFERENCES users(user_id),
-    FOREIGN KEY (session_id) REFERENCES counseling_sessions(session_id)
 );
 
 -- ===================================================================
@@ -645,17 +940,17 @@ CREATE TABLE scholarship_reviews (
 -- Staff reviews
 CREATE TABLE staff_reviews (
     review_id INT PRIMARY KEY AUTO_INCREMENT,
-    staff_id INT NOT NULL,
-    seeker_id INT NOT NULL,
-    session_id INT,
+    staff_id VARCHAR(15) NOT NULL,
+    seeker_id VARCHAR(15) NOT NULL,
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
     review_content TEXT,
     is_anonymous BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (staff_id) REFERENCES users(user_id),
-    FOREIGN KEY (seeker_id) REFERENCES users(user_id),
-    FOREIGN KEY (session_id) REFERENCES counseling_sessions(session_id)
+    FOREIGN KEY (seeker_id) REFERENCES users(user_id)
 );
+
+DESC staff_reviews;
 
 -- Comments on scholarships
 CREATE TABLE scholarship_comments (
