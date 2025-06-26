@@ -17,6 +17,14 @@ public class SeekerStaffMapping {
     @Column(name = "assigned_at")
     private Timestamp assignedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 10)
+    private Status status;
+
+    public enum Status {
+        active, inactive
+    }
+
     public SeekerStaffMapping() {}
 
     public SeekerStaffMapping(String seekerId, String staffId, Timestamp assignedAt) {

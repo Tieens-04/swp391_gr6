@@ -72,7 +72,7 @@ function DetailScholarship() {
                         >
                             <Container className="d-flex flex-column justify-content-center h-100">
                                 <p className="breadcrumb text-uppercase mb-2 small">
-                                    IDP Education / {scholarship?.location || 'Địa điểm'} / {scholarship?.university || 'Trường'} / {scholarship?.title || 'Học bổng'}
+                                    Education / {scholarship?.location || 'Địa điểm'} / {scholarship?.university || 'Trường'} / {scholarship?.title || 'Học bổng'}
                                 </p>
                                 <h1 className="display-5 fw-bold">{scholarship?.title || 'Học bổng'}</h1>
                                 <p className="lead mb-4 text-white-important">
@@ -80,7 +80,7 @@ function DetailScholarship() {
                                 </p>
                                 <div className="d-flex gap-3">
                                     <button className="btn btn-primary px-4 rounded-pill" onClick={toggleRegisterForm}>
-                                        Apply with IDP
+                                        Tư vấn ngay
                                     </button>
                                     <Button variant="outline-light" className="rounded-pill">
                                         <i className="fas fa-share-alt"></i>

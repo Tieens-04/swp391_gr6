@@ -24,7 +24,6 @@ export default function Header() {
                         />
                     </a>
 
-
                     {/* Menu chính giữa */}
                     <div className="mx-auto">
                         <ul className="navbar-nav" style={{ fontWeight: '600', fontSize: '1.05rem' }}>
@@ -64,7 +63,9 @@ export default function Header() {
                                 style={{ border: 'none' }}
                             >
                                 <i className="fas fa-user-circle fs-4 me-2"></i>
-                                <span>Tài khoản</span>
+                                <span>
+                                    {user.isLoggedIn ? `Xin chào, ${user.name}` : "Tài khoản"}
+                                </span>
                             </button>
                             <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                                 {!user.isLoggedIn ? (
@@ -79,6 +80,16 @@ export default function Header() {
                                                 <li><a className="dropdown-item" href="/admin/manage-users">Manage Users</a></li>
                                                 <li><a className="dropdown-item" href="/manage-scholarships">Manage Scholarships</a></li>
                                                 <li><a className="dropdown-item" href="/admin/dashboard">Admin Dashboard</a></li>
+                                                <li><hr className="dropdown-divider" /></li>
+                                            </>
+                                        )}
+                                        {user.role === 'staff' && (
+                                            <>
+                                                <li>
+                                                    <a className="dropdown-item" href="/staff/staff-dashboard">
+                                                        Dashboard
+                                                    </a>
+                                                </li>
                                                 <li><hr className="dropdown-divider" /></li>
                                             </>
                                         )}

@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { jwtDecode } from "jwt-decode";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../contexts/UserContext";
@@ -42,22 +43,21 @@ function LoginForm() {
             if (res.status === 200) {
                 const accessToken = res.data.token;
                 if (typeof accessToken === "string" && accessToken.length > 0) {
-                    login(accessToken);
-                    toast.success("Đăng nhập thành công!");
-                    window.location.href = "/";
+                    // Lưu token vào localStorage nếu cần
+                    localStorage.setItem("accessToken", accessToken);
+                    // Giải mã token để lấy role
+                    const decoded = jwtDecode(accessToken);
+                    if (decoded.role === "staff") {
+                        window.location.href = "/staff/staff-dashboard";
+                    } else {
+                        window.location.href = "/";
+                    }
                 } else {
                     setErrorMessage("Lỗi: Không nhận được accessToken hợp lệ từ server.");
-                    toast.error("Đăng nhập thất bại! Token không hợp lệ.");
                 }
             }
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                setErrorMessage("Email hoặc mật khẩu không đúng");
-                toast.error("Đăng nhập thất bại!");
-            } else {
-                toast.error("Lỗi kết nối server!");
-                console.error("Lỗi:", error);
-            }
+            setErrorMessage("Email hoặc mật khẩu không đúng");
         } finally {
             setIsLoading(false);
         }

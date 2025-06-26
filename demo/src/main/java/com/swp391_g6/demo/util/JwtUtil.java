@@ -24,6 +24,7 @@ public class JwtUtil {
                 .setSubject(user.getEmail())
                 .claim("role", user.getRole())
                 .claim("userId", user.getUserId())  // Thêm userId vào token
+                .claim("name", user.getName())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
@@ -61,7 +62,7 @@ public class JwtUtil {
                     .get("role", String.class);
 
             User user = new User();
-            user.setEmail(email);
+            user.setEmail(email); 
             user.setRole(role);
             return user;
         } catch (JwtException | IllegalArgumentException e) {

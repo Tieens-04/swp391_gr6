@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from "react";
+import moment from "moment";
 import { UserContext } from "../contexts/UserContext";
 import { getRegistrationStats } from "../services/userApi";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -28,7 +29,10 @@ function UserChart() {
             <ResponsiveContainer>
                 <LineChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
+                    <XAxis
+                        dataKey="date"
+                        tickFormatter={date => moment(date).format("DD/MM/YYYY")}
+                    />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
                     <Line type="monotone" dataKey="count" stroke="#8884d8" />
