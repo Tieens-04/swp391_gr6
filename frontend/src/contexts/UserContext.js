@@ -7,6 +7,7 @@ export function UserProvider({ children }) {
     const [user, setUser] = useState({
         isLoggedIn: false,
         userId: null,
+        name: null,
         role: null,
         accessToken: null,
     });
@@ -20,11 +21,12 @@ export function UserProvider({ children }) {
                 setUser({
                     isLoggedIn: true,
                     userId: decoded.userId || null,
+                    name: decoded.name || null,
                     role: decoded.role,
                     accessToken,
                 });
             } catch {
-                setUser({ isLoggedIn: false, role: null, accessToken: null });
+                setUser({ isLoggedIn: false,  userId: null, name: null, role: null, accessToken: null });
             }
         }
         // Đánh dấu là đã hoàn thành kiểm tra xác thực
@@ -37,6 +39,7 @@ export function UserProvider({ children }) {
         setUser({
             isLoggedIn: true,
             userId: decoded.userId || null,
+            name: decoded.name || null,
             role: decoded.role,
             accessToken,
         });
@@ -44,7 +47,7 @@ export function UserProvider({ children }) {
 
     const logout = () => {
         localStorage.removeItem("accessToken");
-        setUser({ isLoggedIn: false, role: null, accessToken: null });
+        setUser({ isLoggedIn: false, userId: null, name: null, role: null, accessToken: null });
     };
 
     return (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../css/know.css';
 
-const knowList = [
+const knowList = [ 
   {
     id: 1,
     image: 'https://www.dinhcutoancau.vn/wp-content/uploads/2018/08/uastralia-map.png',

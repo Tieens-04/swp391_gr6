@@ -1,36 +1,48 @@
+import { User as UserIcon, Phone, Mail, Calendar, ShieldBan } from "lucide-react";
+import moment from "moment";
+
 function UserCard({ user, onBan }) {
+    // Định dạng ngày sinh
+    const dob = user.dateOfBirth
+        ? moment(user.dateOfBirth).format("DD-MM-YYYY")
+        : <span className="fst-italic">Chưa cập nhật</span>;
+
     return (
-        <div className="card shadow-sm border-0 rounded-4 mb-4">
-            <div className="card-body">
-                <div className="mb-3 d-flex justify-content-between align-items-center">
-                    <span className="badge bg-primary fs-6">
-                        <strong>ID:</strong> {user.userId}
-                    </span>
-                    <span className="badge bg-info text-dark">{user.role}</span>
-                </div>
-                <div className="text-center mb-3">
-                    <i className="fas fa-user-circle fa-4x text-secondary"></i>
-                </div>
-                <div className="mb-2">
-                    <h5 className="card-title mb-1">Name: {user.name}</h5>
-                </div>
-                <div className="mb-2">
-                    <h5 className="card-title mb-1">Email: {user.email}</h5>
-                </div>
-                <div className="mb-2">
-                    <h5 className="card-title mb-1">Phone: {user.phone}</h5>
-                </div>
-                <div className="mb-3">
-                    <h5 className="card-title mb-1">Date of Birth: {user.dateOfBirth}</h5>
-                </div>
-                <div className="d-grid">
-                    <button
-                        className="btn btn-danger"
-                        onClick={() => onBan && onBan(user)}
+        <div className="card shadow-sm border-0 rounded-4 mb-4 px-2 py-3" style={{ maxWidth: 370 }}>
+            <div className="d-flex align-items-center mb-3">
+                <div className="me-3">
+                    <div
+                        className="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                        style={{ width: 60, height: 60 }}
                     >
-                        <i className="fas fa-ban me-2"></i>Ban
-                    </button>
+                        <UserIcon size={36} className="text-secondary" />
+                    </div>
                 </div>
+                <div>
+                    <div className="fw-semibold">{user.name}</div>
+                    <div className="text-muted small d-flex align-items-center">
+                        <Mail size={15} className="me-2" />
+                        {user.email}
+                    </div>
+                </div>
+            </div>
+            <div className="mb-2 d-flex align-items-center">
+                <span className="badge bg-secondary me-2">{user.role}</span>
+                <span className="badge bg-light text-dark border">{user.userId}</span>
+            </div>
+            <div className="mb-2 d-flex align-items-center text-muted">
+                <Phone size={16} className="me-2" /> {user.phone || <span className="fst-italic">Chưa cập nhật</span>}
+            </div>
+            <div className="mb-2 d-flex align-items-center text-muted">
+                <Calendar size={16} className="me-2" /> {dob}
+            </div>
+            <div className="d-grid mt-3">
+                <button
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => onBan && onBan(user)}
+                >
+                    <ShieldBan size={16} className="me-2" /> Ban
+                </button>
             </div>
         </div>
     );

@@ -5,6 +5,7 @@ import { ChatProvider } from './contexts/ChatContext';
 import AuthRoute from "./routes/authRoute";
 import UserRoute from "./routes/userRoute";
 import SeekerRoute from "./routes/seekerRoute";
+import StaffRoute from "./routes/staffRoute";
 import ScholarshipRoute from "./routes/scholarshipRoute";
 import DetailRoute from "./routes/detailRoute";
 import Messages from './pages/messages';
@@ -25,6 +26,7 @@ function App() {
                             <Route path="/messages" element={<Messages />} />
                             <Route path="/chat" element={<ChatBox />} />
                             <Route path="/payment" element={<Payment />} /> // Dùng 'Payment' cho tên component
+                            <Route path="/staff/*" element={<StaffRoute />} />
                             {/* Thêm các route khác ở đây nếu có */}
                         </Routes>
                     </Router>

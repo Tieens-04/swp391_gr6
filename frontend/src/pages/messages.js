@@ -95,9 +95,24 @@ const Messages = () => {
                 loadConversation(contactId);
 
                 if (user?.accessToken) {
-                    markAsRead(user.accessToken, contactId).catch(err => {
-                        console.error('Error marking messages as read:', err);
-                    });
+                    markAsRead(user.accessToken, contactId)
+                        .catch(err => {
+                            console.error('Error marking messages as read:', err);
+                        })
+                        .finally(() => {
+                            // Sau khi đánh dấu đã đọc, cập nhật lại contacts
+                            getContacts(user.accessToken)
+                                .then(response => {
+                                    if (response.status === 200) {
+                                        const sortedContacts = response.data.sort((a, b) => {
+                                            const timeA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+                                            const timeB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+                                            return timeB - timeA;
+                                        });
+                                        setContacts(sortedContacts);
+                                    }
+                                });
+                        });
                 }
             } else {
                 setActiveConversation(contactId);
@@ -111,6 +126,27 @@ const Messages = () => {
 
         sendMessage(activeConversation, message);
         setMessage('');
+
+        // Sau khi gửi tin nhắn, đánh dấu đã đọc và cập nhật lại contacts
+        if (user?.accessToken) {
+            markAsRead(user.accessToken, activeConversation)
+                .catch(err => {
+                    console.error('Error marking messages as read:', err);
+                })
+                .finally(() => {
+                    getContacts(user.accessToken)
+                        .then(response => {
+                            if (response.status === 200) {
+                                const sortedContacts = response.data.sort((a, b) => {
+                                    const timeA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+                                    const timeB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+                                    return timeB - timeA;
+                                });
+                                setContacts(sortedContacts);
+                            }
+                        });
+                });
+        }
     };
 
     // Handle prompt selection
@@ -398,7 +434,7 @@ const Messages = () => {
                     )}
                 </div>
             </div>
-            
+
             {/* Header moved to bottom */}
             <div className="messenger-header-container">
                 <Header />

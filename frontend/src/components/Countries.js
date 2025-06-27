@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../css/countries.css';
-import RegisterForm from './Register-book';
+import { useNavigate } from 'react-router-dom';
+
 
 const countries = [
     {
@@ -48,10 +49,10 @@ const countries = [
 ];
 
 export default function Countries() {
-    const [showForm, setShowForm] = useState(false);
+    const navigate = useNavigate();
 
-    const toggleForm = () => {
-        setShowForm(!showForm);
+    const handleStudyAbroadClick = (countryName) => {
+        navigate(`/search?country=${encodeURIComponent(countryName)}`);
     };
 
     return (
@@ -69,7 +70,7 @@ export default function Countries() {
                             <div className="overlay">
                                 <h6 className="text-primary fw-bold">{c.title}</h6>
                                 <p className="text-white small">{c.content}</p>
-                                <button className="btn btn-primary btn-sm" onClick={toggleForm}>
+                                <button className="btn btn-primary btn-sm" onClick={() => handleStudyAbroadClick(c.name)}>
                                     {c.button}
                                 </button>
                             </div>
@@ -78,12 +79,6 @@ export default function Countries() {
                     </div>
                 ))}
             </div>
-            {showForm && (
-                <div className="register-form-popup">
-                    <button className="close-form" onClick={toggleForm}>×</button>
-                    <RegisterForm />
-                </div>
-            )}
         </section>
     );
 }

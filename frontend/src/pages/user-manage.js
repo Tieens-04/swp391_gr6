@@ -3,11 +3,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "../contexts/UserContext";
 import { userManage } from "../services/userApi";
-
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import UserCard from '../components/UserCard';
 import UserChart from "../components/UserChart";
+
+import "../css/user-manage.css";
 
 function UserManage() {
     const { user: contextUser } = useContext(UserContext);
@@ -16,7 +17,18 @@ function UserManage() {
     const [loading, setLoading] = useState(true);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const usersPerPage = 20;
+    const usersPerPage = 21;
+
+    // Thêm state cho filter và search
+    const [roleFilter, setRoleFilter] = useState("all");
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const roleOptions = [
+        { value: "all", label: "Tất cả" },
+        { value: "seeker", label: "Seeker" },
+        { value: "staff", label: "Staff" },
+        { value: "admin", label: "Admin" }
+    ];
 
     useEffect(() => {
         setLoading(true);
@@ -51,8 +63,18 @@ function UserManage() {
         fetchUser();
     }, [contextUser]);
 
-    const totalPages = Math.ceil(userData.length / usersPerPage);
-    const paginatedUsers = userData.slice(
+    // Lọc và tìm kiếm
+    const filteredUsers = userData.filter(user => {
+        const matchRole = roleFilter === "all" || user.role === roleFilter;
+        const matchSearch =
+            user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.userId?.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchRole && matchSearch;
+    });
+
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+    const paginatedUsers = filteredUsers.slice(
         (currentPage - 1) * usersPerPage,
         currentPage * usersPerPage
     );
@@ -60,9 +82,12 @@ function UserManage() {
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 825, behavior: 'smooth' });
         }
     };
+
+    // Lấy danh sách role duy nhất từ userData
+    const uniqueRoles = Array.from(new Set(userData.map(u => u.role))).filter(Boolean);
 
     return (
         <>
@@ -102,9 +127,8 @@ function UserManage() {
                     </div>
                 </div>
 
-
                 {/* Biểu đồ thống kê */}
-                <div className="row justify-content-center mb-4">
+                <div className="row justify-content-center mb-5 fade-in-up">
                     <div className="col-lg-8">
                         <div className="card shadow-sm border-0">
                             <div className="card-body">
@@ -114,8 +138,45 @@ function UserManage() {
                     </div>
                 </div>
 
+                {/* Bộ lọc và tìm kiếm */}
+                <div className="row justify-content-center mb-4 fade-in-up" style={{ animationDelay: "0.15s" }}>
+                    <div className="col-lg-10">
+                        <div className="d-flex flex-wrap gap-3 align-items-center justify-content-between">
+                            <div>
+                                <label className="me-2 fw-semibold">Lọc theo vai trò:</label>
+                                <select
+                                    className="form-select d-inline-block"
+                                    style={{ minWidth: 180, maxWidth: 250 }}
+                                    value={roleFilter}
+                                    onChange={e => {
+                                        setRoleFilter(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                >
+                                    {roleOptions.map(opt => (
+                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    style={{ minWidth: 220 }}
+                                    placeholder="Tìm kiếm theo tên, email, ID..."
+                                    value={searchTerm}
+                                    onChange={e => {
+                                        setSearchTerm(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Danh sách người dùng */}
-                <div className="row justify-content-center">
+                <div className="row justify-content-center fade-in-up" style={{ animationDelay: "0.3s" }}>
                     <div className="col-lg-10">
                         <div className="card shadow-sm border-0">
                             <div className="card-body">
@@ -129,11 +190,11 @@ function UserManage() {
                                         <p className="mt-3">Đang tải thông tin người dùng...</p>
                                     </div>
                                 ) : (
-                                    userData.length > 0 ? (
+                                    filteredUsers.length > 0 ? (
                                         <>
                                             <div className="row g-4">
                                                 {paginatedUsers.map(user => (
-                                                    <div className="col-md-6" key={user.user_id}>
+                                                    <div className="col-12 col-sm-6 col-md-4" key={user.user_id}>
                                                         <UserCard user={user} />
                                                     </div>
                                                 ))}

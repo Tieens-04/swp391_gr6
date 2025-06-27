@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
+import { useLocation } from 'react-router-dom';
 
-import '../css/Search.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ScholarshipCard from '../components/ScholarshipCard';
@@ -8,9 +9,6 @@ import ScholarshipCard from '../components/ScholarshipCard';
 import { getAllScholarships } from '../services/scholarshipApi';
 
 const SearchSchool = () => {
-    const [showFilter, setShowFilter] = useState(false);
-    const toggleFilter = () => setShowFilter(!showFilter);
-
     const [scholarships, setScholarships] = useState([]);
     const [filteredScholarships, setFilteredScholarships] = useState([]);
 
@@ -19,18 +17,18 @@ const SearchSchool = () => {
     const [selectedFields, setSelectedFields] = useState([]);
     const [selectedCities, setSelectedCities] = useState([]);
 
-    const [costOptions] = useState([100000, 80000, 50000]);
-    const [selectedCost, setSelectedCost] = useState([]);
+    const costOptions = [100000, 80000, 50000];
+    const toeflOptions = [100, 80, 60];
+    const ieltsOptions = [8.0, 7.0, 6.0];
 
-    // Thêm filter cho language requirements
-    const [toeflOptions] = useState([60, 80, 100]);
-    const [selectedToefl, setSelectedToefl] = useState([]);
-
-    const [ieltsOptions] = useState([6.0, 7.0, 8.0]);
-    const [selectedIelts, setSelectedIelts] = useState([]);
+    const [selectedCost, setSelectedCost] = useState(null);
+    const [selectedToefl, setSelectedToefl] = useState(null);
+    const [selectedIelts, setSelectedIelts] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 12;
+
+    const location = useLocation();
 
     useEffect(() => {
         const fetchScholarships = async () => {
@@ -63,7 +61,19 @@ const SearchSchool = () => {
                 });
 
                 setFields(Array.from(fieldsSet).sort());
-                setCities(Array.from(citiesSet).sort());
+                const sortedCities = Array.from(citiesSet).sort();
+                setCities(sortedCities);
+
+                // Đặt filter nếu có query ?country=... trong URL
+                const params = new URLSearchParams(location.search);
+                const countryFromUrl = params.get('country');
+                if (countryFromUrl) {
+                    // Lọc tất cả cities có chứa countryFromUrl (không phân biệt chữ hoa/thường)
+                    const matchingCities = sortedCities.filter(city =>
+                        city.toLowerCase().includes(countryFromUrl.toLowerCase())
+                    );
+                    setSelectedCities(matchingCities);
+                }
             } catch (error) {
                 console.error('Lỗi khi tải học bổng:', error);
                 setScholarships([]);
@@ -72,15 +82,7 @@ const SearchSchool = () => {
         };
 
         fetchScholarships();
-    }, []);
-
-    const toggleSelection = (item, selectedItems, setSelectedItems) => {
-        if (selectedItems.includes(item)) {
-            setSelectedItems(selectedItems.filter((i) => i !== item));
-        } else {
-            setSelectedItems([...selectedItems, item]);
-        }
-    };
+    }, [location.search]);
 
     const filterByFields = (scholarship) => {
         if (selectedFields.length === 0) return true;
@@ -95,44 +97,29 @@ const SearchSchool = () => {
 
     const filterByCities = (scholarship) => {
         if (selectedCities.length === 0) return true;
+        let cs = [];
         try {
-            const cs = JSON.parse(scholarship.countries);
-            if (Array.isArray(cs)) return cs.some((c) => selectedCities.includes(c));
-            else return selectedCities.includes(cs);
+            const parsed = JSON.parse(scholarship.countries);
+            cs = Array.isArray(parsed) ? parsed : [parsed];
         } catch {
-            return selectedCities.includes(scholarship.countries);
+            cs = typeof scholarship.countries === 'string' ? [scholarship.countries] : [];
         }
+        return cs.some(country => selectedCities.includes(country));
     };
 
     const filterByCost = (scholarship) => {
-        if (selectedCost.length === 0) return true;
+        if (!selectedCost) return true;
         const amount = Number(scholarship.amount);
-        if (isNaN(amount)) return false;
-        const maxSelectedCost = Math.min(...selectedCost);
-        return amount <= maxSelectedCost;
+        return !isNaN(amount) && amount <= selectedCost;
     };
 
-    // Filter cho language requirements
     const filterByLanguageRequirements = (scholarship) => {
-        let pass = true;
-
         try {
             const lang = JSON.parse(scholarship.languageRequirements);
-
-            if (selectedToefl.length > 0 && lang.toefl) {
-                const minSelectedToefl = Math.min(...selectedToefl);
-                if (lang.toefl > minSelectedToefl) pass = false;
-            }
-
-            if (selectedIelts.length > 0 && lang.ielts) {
-                const minSelectedIelts = Math.min(...selectedIelts);
-                if (lang.ielts > minSelectedIelts) pass = false;
-            }
-        } catch {
-            // Nếu không parse được thì bỏ qua filter này
-        }
-
-        return pass;
+            if (selectedToefl && lang.toefl && lang.toefl > selectedToefl) return false;
+            if (selectedIelts && lang.ielts && lang.ielts > selectedIelts) return false;
+        } catch { }
+        return true;
     };
 
     const applyFilter = () => {
@@ -145,16 +132,20 @@ const SearchSchool = () => {
         );
         setFilteredScholarships(filtered);
         setCurrentPage(1);
-        setShowFilter(false);
     };
 
     const clearFilters = () => {
         setSelectedFields([]);
         setSelectedCities([]);
-        setSelectedCost([]);
-        setSelectedToefl([]);
-        setSelectedIelts([]);
+        setSelectedCost(null);
+        setSelectedToefl(null);
+        setSelectedIelts(null);
+        setFilteredScholarships(scholarships);
     };
+
+    useEffect(() => {
+        applyFilter();
+    }, [selectedFields, selectedCities, selectedCost, selectedToefl, selectedIelts]);
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -176,93 +167,69 @@ const SearchSchool = () => {
                     Khám phá các học bổng từ các trường đại học hàng đầu bên dưới. Sử dụng bộ lọc để tìm kiếm theo lĩnh vực, ngôn ngữ, thành phố và chi phí
                 </p>
 
-                <div className="d-flex gap-2 mb-3">
-                    <button className="btn btn-primary" onClick={toggleFilter}>
-                        <i className="fas fa-filter me-2"></i>Lọc học bổng
-                    </button>
-                </div>
-
-                {showFilter && (
-                    <div className="filter-panel shadow-sm p-4 mb-3">
-                        <h5 className="mb-3 fw-bold">Lọc các học bổng theo</h5>
-                        <div className="row">
-
-                            <div className="col-md-3">
-                                <p className="fw-semibold">Lĩnh vực giảng dạy</p>
-                                {fields.map((field, i) => (
-                                    <div className="form-check" key={i}>
-                                        <input className="form-check-input" type="checkbox" id={`field-${i}`}
-                                            checked={selectedFields.includes(field)}
-                                            onChange={() => toggleSelection(field, selectedFields, setSelectedFields)} />
-                                        <label className="form-check-label" htmlFor={`field-${i}`}>{field}</label>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="col-md-3">
-                                <p className="fw-semibold">Thành phố</p>
-                                {cities.map((city, i) => (
-                                    <div className="form-check" key={i}>
-                                        <input className="form-check-input" type="checkbox" id={`city-${i}`}
-                                            checked={selectedCities.includes(city)}
-                                            onChange={() => toggleSelection(city, selectedCities, setSelectedCities)} />
-                                        <label className="form-check-label" htmlFor={`city-${i}`}>{city}</label>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="col-md-3">
-                                <p className="fw-semibold">Chi phí học bổng</p>
-                                {costOptions.map((cost, i) => (
-                                    <div className="form-check" key={i}>
-                                        <input className="form-check-input" type="checkbox" id={`cost-${i}`}
-                                            checked={selectedCost.includes(cost)}
-                                            onChange={() => toggleSelection(cost, selectedCost, setSelectedCost)} />
-                                        <label className="form-check-label" htmlFor={`cost-${i}`}>
-                                            {cost.toLocaleString('vi-VN')} GBP
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="col-md-3">
-                                <p className="fw-semibold">Yêu cầu TOEFL</p>
-                                {toeflOptions.map((score, i) => (
-                                    <div className="form-check" key={i}>
-                                        <input className="form-check-input" type="checkbox" id={`toefl-${i}`}
-                                            checked={selectedToefl.includes(score)}
-                                            onChange={() => toggleSelection(score, selectedToefl, setSelectedToefl)} />
-                                        <label className="form-check-label" htmlFor={`toefl-${i}`}>
-                                            {score} điểm
-                                        </label>
-                                    </div>
-                                ))}
-
-                                <p className="fw-semibold mt-3">Yêu cầu IELTS</p>
-                                {ieltsOptions.map((score, i) => (
-                                    <div className="form-check" key={i}>
-                                        <input className="form-check-input" type="checkbox" id={`ielts-${i}`}
-                                            checked={selectedIelts.includes(score)}
-                                            onChange={() => toggleSelection(score, selectedIelts, setSelectedIelts)} />
-                                        <label className="form-check-label" htmlFor={`ielts-${i}`}>
-                                            {score.toFixed(1)}
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-
+                <div className="filter-panel shadow-sm p-4 mb-4 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                    <h5 className="mb-3 fw-bold">Lọc học bổng</h5>
+                    <div className="row">
+                        <div className="col-md-3 mb-3">
+                            <label className="fw-semibold mb-1">Lĩnh vực giảng dạy</label>
+                            <Select
+                                options={fields.map(f => ({ value: f, label: f }))}
+                                isMulti
+                                value={selectedFields.map(f => ({ value: f, label: f }))}
+                                onChange={(selected) => setSelectedFields(selected.map(item => item.value))}
+                                placeholder="Chọn lĩnh vực"
+                            />
                         </div>
 
-                        <div className="mt-4 d-flex gap-2">
-                            <button className="btn btn-outline-secondary" onClick={() => { clearFilters(); setShowFilter(false); }}>
-                                Hủy bỏ
-                            </button>
-                            <button className="btn btn-primary" onClick={applyFilter}>
-                                Áp dụng bộ lọc
-                            </button>
+                        <div className="col-md-3 mb-3">
+                            <label className="fw-semibold mb-1">Quốc gia du học</label>
+                            <Select
+                                options={cities.map(c => ({ value: c, label: c }))}
+                                isMulti
+                                value={selectedCities.map(c => ({ value: c, label: c }))}
+                                onChange={(selected) => setSelectedCities(selected.map(item => item.value))}
+                                placeholder="Chọn quốc gia"
+                            />
+                        </div>
+
+                        <div className="col-md-2 mb-3">
+                            <label className="fw-semibold mb-1">Chi phí tối đa</label>
+                            <Select
+                                options={costOptions.map(c => ({ value: c, label: `${c.toLocaleString('vi-VN')} GBP` }))}
+                                value={selectedCost ? { value: selectedCost, label: `${selectedCost.toLocaleString('vi-VN')} GBP` } : null}
+                                onChange={(selected) => setSelectedCost(selected?.value || null)}
+                                placeholder="Chọn chi phí"
+                                isClearable
+                            />
+                        </div>
+
+                        <div className="col-md-2 mb-3">
+                            <label className="fw-semibold mb-1">TOEFL tối đa</label>
+                            <Select
+                                options={toeflOptions.map(score => ({ value: score, label: `${score} điểm` }))}
+                                value={selectedToefl ? { value: selectedToefl, label: `${selectedToefl} điểm` } : null}
+                                onChange={(selected) => setSelectedToefl(selected?.value || null)}
+                                placeholder="Chọn TOEFL"
+                                isClearable
+                            />
+                        </div>
+
+                        <div className="col-md-2 mb-3">
+                            <label className="fw-semibold mb-1">IELTS tối đa</label>
+                            <Select
+                                options={ieltsOptions.map(score => ({ value: score, label: `${score} điểm` }))}
+                                value={selectedIelts ? { value: selectedIelts, label: `${selectedIelts} điểm` } : null}
+                                onChange={(selected) => setSelectedIelts(selected?.value || null)}
+                                placeholder="Chọn IELTS"
+                                isClearable
+                            />
                         </div>
                     </div>
-                )}
+
+                    <div className="mt-3 d-flex justify-content-end">
+                        <button className="btn btn-danger" onClick={clearFilters}>Hủy bỏ</button>
+                    </div>
+                </div>
 
                 <div className="row">
                     {currentScholarships.length === 0 ? (
@@ -281,19 +248,19 @@ const SearchSchool = () => {
                 {filteredScholarships.length > itemsPerPage && (
                     <nav className="mt-4">
                         <ul className="pagination justify-content-center">
-                            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                                     &laquo;
                                 </button>
                             </li>
                             {Array.from({ length: totalPages }, (_, i) => (
-                                <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
+                                <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
                                     <button className="page-link" onClick={() => handlePageChange(i + 1)}>
                                         {i + 1}
                                     </button>
                                 </li>
                             ))}
-                            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
                                     &raquo;
                                 </button>
