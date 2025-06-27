@@ -558,6 +558,10 @@ VALUES ('SCHOLARCATE0001', 'Ireland Scholarship', 'Scholarship for students lear
        ('SCHOLARCATE0005', 'Canada Scholarship', 'Scholarship for students learning in Canada', 'https://res.cloudinary.com/dht9hd5ap/image/upload/v1748270661/canada_sci5ef.png'),
        ('SCHOLARCATE0006', 'United Kingdom Scholarship', 'Scholarship for students learning in United Kingdom', 'https://res.cloudinary.com/dht9hd5ap/image/upload/v1748270667/united_kingdom_uzwpvx.png');
 
+INSERT INTO scholarship_categories (category_id, name, description, icon_url)
+VALUES ('SCHOLARCATE0007', 'Other Scholarship', 'Other', 'https://res.cloudinary.com/dht9hd5ap/image/upload/v1748270152/ireland_zazwfv.png');
+
+
 -- Organizations/Sponsors
 CREATE TABLE organizations (
     organization_id VARCHAR(15) PRIMARY KEY,
@@ -633,6 +637,8 @@ CREATE TABLE scholarships (
     FOREIGN KEY (created_by) REFERENCES users(user_id),
     FOREIGN KEY (approved_by) REFERENCES users(user_id)
 );
+
+DESC scholarships;
 
 INSERT INTO scholarships (
     scholarship_id,
