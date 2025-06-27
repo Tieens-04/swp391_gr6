@@ -54,6 +54,7 @@ public class JwtUtil {
 
     public User extractUserFromToken(String token) {
         try {
+            String userId = getUserIdFromToken(token);
             String email = extractEmail(token);
             String role = Jwts.parser()
                     .setSigningKey(SECRET_KEY)
@@ -64,6 +65,7 @@ public class JwtUtil {
             User user = new User();
             user.setEmail(email); 
             user.setRole(role);
+            user.setUserId(userId);
             return user;
         } catch (JwtException | IllegalArgumentException e) {
             return null;

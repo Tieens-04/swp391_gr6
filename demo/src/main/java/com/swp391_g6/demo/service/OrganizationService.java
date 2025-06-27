@@ -18,4 +18,15 @@ public class OrganizationService {
         return organizationRepository.findAll();
     }
 
+    public Organization getOrganizationById(String organizationId) {
+        return organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new IllegalArgumentException("Organization not found with id: " + organizationId));
+    }
+
+    public Organization getOrganizationByName(String name) {
+        System.out.println("Searching for organization with name: " + name);
+        return organizationRepository.findByName(name)
+                .orElseThrow(() -> new IllegalArgumentException("Organization not found with name: " + name));
+    } 
+
 }

@@ -44,5 +44,9 @@ public class IdGeneratorService {
 
         return sb.toString();
     }
+
+    public String generateScholarshipId() {
+        return generateId("SCHOLAR", false, 7);
+    }
     
 }
