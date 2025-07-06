@@ -21,13 +21,13 @@ public class IdGeneratorService {
             IdGenerator generator = idGeneratorRepository.findById(type)
                     .orElseGet(() -> {
                         IdGenerator g = new IdGenerator();
-                        g.setName(type);
-                        g.setCurrentValue(0);
+                        g.setType(type);
+                        g.setCurrentNumber(0);
                         return g;
                     });
 
-            long nextValue = generator.getCurrentValue() + 1;
-            generator.setCurrentValue(nextValue);
+            int nextValue = generator.getCurrentNumber() + 1;
+            generator.setCurrentNumber(nextValue);
             idGeneratorRepository.save(generator);
 
             return type + String.format("%0" + length + "d", nextValue);

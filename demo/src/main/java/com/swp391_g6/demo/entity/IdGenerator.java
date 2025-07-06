@@ -1,38 +1,43 @@
 package com.swp391_g6.demo.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "id_generator")
 public class IdGenerator {
 
     @Id
-    private String name;
+    @Column(name = "type", length = 10, nullable = false)
+    private String type;
 
-    private long currentValue;
+    @Column(name = "current_number", nullable = false)
+    private int currentNumber = 0;
 
     public IdGenerator() {
     }
 
-    public IdGenerator(String name, long currentValue) {
-        this.name = name;
-        this.currentValue = currentValue;
+    public IdGenerator(String type, int currentNumber) {
+        this.type = type;
+        this.currentNumber = currentNumber;
     }
 
-    public String getName() {
-        return name;
+    public String getType() {
+        return type;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public long getCurrentValue() {
-        return currentValue;
+    public int getCurrentNumber() {
+        return currentNumber;
     }
 
-    public void setCurrentValue(long currentValue) {
-        this.currentValue = currentValue;
+    public void setCurrentNumber(int currentNumber) {
+        this.currentNumber = currentNumber;
     }
 
 }
